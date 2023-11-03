@@ -17,8 +17,9 @@ To host the bot localy on Android phone follow this steps:
  6) ```apt update && apt upgrade```
  7) ```apt install python3 pip kakoune git```
  8) ```git clone https://github.com/DeniskaRediska21/G4f_telegram_bot.git```
- 9) ```source g4f_telebot```
- 10) ```pip install requirements.txt```
- 11) ```kak config.py```
- 12) Paste to config.py:  ```BOT_TOKEN = "Token provided by @BotFather"```
- 13) ```python3 telebot_bot.py```
+ 9) ```cd G4f_telegram_bot```
+ 10) ```source g4f_telebot```
+ 11) ```pip install requirements.txt```
+ 12) ```kak config.py```
+ 13) Paste to config.py:  ```BOT_TOKEN = "Token provided by @BotFather"```
+ 14) ```python3 telebot_bot.py```
