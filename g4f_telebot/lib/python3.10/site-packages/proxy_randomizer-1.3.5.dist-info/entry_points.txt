@@ -1,0 +1,3 @@
+[console_scripts]
+proxy_randomizer = proxy_randomizer.cli:main
+
