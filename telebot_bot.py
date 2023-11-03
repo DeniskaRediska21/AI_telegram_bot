@@ -16,7 +16,7 @@ history = {123 : ['test', 'test']}
 history_max_length = 4
 
 
-@bot.message_handler(commands = ['help'])
+@bot.message_handler(commands = ['help','start'])
 def list_commands(message):
     bot.send_message(message.from_user.id,
     """
@@ -24,6 +24,24 @@ def list_commands(message):
 /lang en/ru to set output language
     """)
 
+def gpt_answer(prompt):
+    providers = [g4f.Provider.Aichat,
+                g4f.Provider.ChatBase,
+                g4f.Provider.Bing,
+                g4f.Provider.GptGo,
+                g4f.Provider.You,
+                g4f.Provider.Yqcloud]
+    for provider in providers:
+        try:
+            rp = RegisteredProviders()
+            rp.parse_providers()
+            proxi = rp.get_random_proxy()
+            completion = g4f.ChatCompletion.create(proxi=proxi,model = "gpt-3.5-turbo",messages = [{"role":"user","content":prompt}])
+            break
+        except:
+            pass
+
+    return completion
 @bot.message_handler(commands = ['new'])
 def clear_history(message):
     if message.from_user.id in history:
@@ -40,13 +58,9 @@ def lang_process(language):
 
 @bot.message_handler(content_types='text')
 def gettext(message):
-    try:
+#    try:
         global lang
         bot.send_message(message.from_user.id, "Минуточку...")
-
-        rp = RegisteredProviders()
-        rp.parse_providers()
-        proxi = rp.get_random_proxy()
 
         en_txt = translator.translate(message.text,dest = 'en') 
 
@@ -55,7 +69,8 @@ def gettext(message):
         else:
             prompt = en_txt.text 
         
-        ans = g4f.ChatCompletion.create(proxi=proxi,model = "gpt-3.5-turbo",messages = [{"role":"user","content":prompt}])
+        ans = gpt_answer(prompt)
+
         try:
             ans_ru = translator.translate(ans,dest = lang).text
         except:
@@ -73,8 +88,8 @@ def gettext(message):
 
         #print('\n'.join(history[message.from_user.id]))
         bot.send_message(message.from_user.id, ans_ru)
-    except:
-        bot.send_message(message.from_user.id, "Что-то пошло не так :( Повторите запрос")
+#    except:
+#        bot.send_message(message.from_user.id, "Что-то пошло не так :( Повторите запрос")
 
         
 
