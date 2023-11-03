@@ -12,6 +12,7 @@ To host the bot localy on Android phone follow this steps:
  4) Install Ubuntu dashboard following instructions in AnLinux
 
  In termux:
+
  5) ./start-ubuntu.sh
  6) ```apt update && apt upgrade```
  7) ```apt install python3 pip kakoune git```
