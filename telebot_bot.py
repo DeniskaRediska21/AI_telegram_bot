@@ -2,6 +2,9 @@ import config
 import g4f
 from googletrans import Translator
 import telebot
+from proxy_randomizer import RegisteredProviders
+
+
 
 translator = Translator()
 
@@ -18,11 +21,14 @@ def lang(language):
 def gettext(message):
     try:
 
+        rp = RegisteredProviders()
+        rp.parse_providers()
+        proxi = rp.get_random_proxy()
         bot.send_message(message.from_user.id, "Минуточку...")
 
         en_txt = translator.translate(message.text,dest = lang) 
 
-        ans = g4f.ChatCompletion.create(model = "gpt-3.5-turbo",messages = [{"role":"user","content":en_txt.text}])
+        ans = g4f.ChatCompletion.create(proxi=proxi,model = "gpt-3.5-turbo",messages = [{"role":"user","content":en_txt.text}])
 
         ans_ru = translator.translate(ans,dest = 'en').text  
 
