@@ -13,7 +13,7 @@ To host the bot localy on Android phone follow this steps:
 
  In termux:
 
- 5) ./start-ubuntu.sh
+ 5) ```./start-ubuntu.sh```
  6) ```apt update && apt upgrade```
  7) ```apt install python3 pip kakoune git```
  8) ```git clone https://github.com/DeniskaRediska21/G4f_telegram_bot.git```
