@@ -1,0 +1,205 @@
+Metadata-Version: 2.1
+Name: proxy-randomizer
+Version: 1.3.5
+Summary: proxy randomizer
+Home-page: https://github.com/esequiel378/proxy_randomizer
+Author: Esequiel Albornoz
+Author-email: esequielalbornoz7@gmail.com
+License: MIT license
+Keywords: proxy_randomizer
+Platform: UNKNOWN
+Classifier: Development Status :: 2 - Pre-Alpha
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Natural Language :: English
+Classifier: Programming Language :: Python :: 3.6
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Requires-Python: >=3.6
+Requires-Dist: requests (>=2.23.0)
+Requires-Dist: beautifulsoup4 (>=4.9.0)
+Requires-Dist: lxml (>=4.5.0)
+
+================
+proxy-randomizer
+================
+
+
+.. image:: https://img.shields.io/pypi/v/proxy_randomizer.svg?version=latest
+        :target: https://pypi.python.org/pypi/proxy_randomizer
+
+.. image:: https://readthedocs.org/projects/proxy-randomizer/badge/?version=latest
+        :target: https://proxy-randomizer.readthedocs.io/en/latest/?badge=latest
+        :alt: Documentation Status
+
+.. image:: https://static.pepy.tech/personalized-badge/proxy-randomizer?period=total&units=international_system&left_color=black&right_color=orange&left_text=Downloads
+        :target: https://pepy.tech/project/proxy-randomizer
+        :alt: Total Downloads
+
+.. image:: https://img.shields.io/badge/code%20style-black-000000.svg
+        :target: https://github.com/psf/black
+        :alt: Black Formater
+
+
+proxy randomizer
+
+
+* Free software: MIT license
+* Documentation: https://proxy-randomizer.readthedocs.io.
+
+
+Description
+------------------
+
+Inpired by `http-request-randomizer`_
+
+proxy_randomizer is intended to use for small-meduim web scrapers/crawlers, helping to avoid
+temporal/permanent bans from web pages, generating random proxies to include in the requests
+
+
+Installation
+------------
+
+.. code-block:: python
+
+   pip install proxy_randomizer
+
+
+API
+---
+
+To use proxy_randomizer in your code, you just need to generate a
+RegisteredProviders instance and parse the providers.
+
+.. code-block:: python
+
+    from proxy_randomizer import RegisteredProviders
+
+    rp = RegisteredProviders()
+    rp.parse_providers()
+
+    print(f"proxy: {rp.get_random_proxy()}")
+
+
+You can iterate throughout all proxies as simple as this.
+
+.. code-block:: python
+
+   from proxy_randomizer import RegisteredProviders
+   import requests
+
+   rp = RegisteredProviders()
+   rp.parse_providers()
+
+   for proxy in rp.proxies:
+
+        proxies     = {"https": proxy.get_proxy()}
+        response    = requests.get("http://google.com", proxies=proxies)
+
+
+If you need to hide your identity, you can filter the proxy list by its
+anonymity level.
+
+.. code-block:: python
+
+   from proxy_randomizer import RegisteredProviders
+   from proxy_randomizer.proxy import Anonymity
+
+   rp = RegisteredProviders()
+   rp.parse_providers()
+
+   anonymous_proxies = list(
+       filter(lambda proxy: proxy.anonymity == Anonymity.ANONYMOUS, rp.proxies)
+   )
+
+   print(f"filtered proxies: {anonymous_proxies}")
+
+
+There are four different anonymity levels, you can inspect them like this
+
+.. code-block:: python
+
+   from proxy_randomizer.utils import ANONYMITY_LEVELS
+
+   for level in ANONYMITY_LEVELS:
+      print(level.label)
+
+
+Command-line interface
+----------------------
+
+If you need some quick proxy, just type this in your terminal.
+
+.. code-block:: bash
+
+   proxy_randomizer
+
+
+Credits
+-------
+
+This package was created with Cookiecutter_ and the `audreyr/cookiecutter-pypackage`_ project template.
+
+.. _Cookiecutter: https://github.com/audreyr/cookiecutter
+.. _`audreyr/cookiecutter-pypackage`: https://github.com/audreyr/cookiecutter-pypackage
+.. _`http-request-randomizer`: https://github.com/pgaref/HTTP_Request_Randomizer
+
+
+=======
+History
+=======
+
+1.3.5 (2023-01-03)
+------------------
+
+* Move CI from Travis to GitHub Actions
+* Fix a bug in the project version bumps script
+
+1.3.4 (2023-01-03)
+------------------
+
+* Fix security issue
+
+1.3.3 (2021-08-30)
+------------------
+
+* Fix versions bumps
+
+1.3.2 (2021-08-30)
+------------------
+
+* Add python3.9 to travis cli
+
+1.3.1 (2021-08-30)
+------------------
+
+* Fix table not found error and some updates
+
+* Upate table selector and tests
+
+* Add python 3.9 compatibility in the config
+
+1.3.0 (2021-01-06)
+------------------
+
+* Bump lxml from 4.5.0 to 4.6.2
+
+* Change dev dependencies
+
+1.2.1 (2020-12-23)
+------------------
+
+* Fix dependencies versions
+
+1.2.0 (2020-12-23)
+------------------
+
+* Refactor code
+
+0.1.0 (2020-08-02)
+------------------
+
+* First release on PyPI.
+
+
