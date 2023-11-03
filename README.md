@@ -6,7 +6,7 @@ Chat GPT telegram bot powered by gpt4free and telebot
 
 To host the bot localy on Android phone follow this steps:
 
- 1) Get the bot token from @BotFather in telegram app
+ 1) [Get the bot token from @BotFather in telegram app](https://t.me/botfather)
  2) [Install Termux](https://f-droid.org/packages/com.termux/)
  3) [Install AnLinux](https://f-droid.org/packages/exa.lnx.a/)
  4) Install Ubuntu dashboard following instructions in AnLinux
