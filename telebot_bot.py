@@ -15,15 +15,6 @@ lang = 'en'
 history = {123 : ['test', 'test']}
 history_max_length = 4
 
-
-@bot.message_handler(commands = ['help','start'])
-def list_commands(message):
-    bot.send_message(message.from_user.id,
-    """
-/new to start new dialogue
-/lang en/ru to set output language
-    """)
-
 def gpt_answer(prompt):
     providers = [g4f.Provider.Aichat,
                 g4f.Provider.ChatBase,
@@ -42,6 +33,15 @@ def gpt_answer(prompt):
             pass
 
     return completion
+
+@bot.message_handler(commands = ['help','start'])
+def list_commands(message):
+    bot.send_message(message.from_user.id,
+    """
+/new to start new dialogue
+/lang en/ru to set output language
+    """)
+
 @bot.message_handler(commands = ['new'])
 def clear_history(message):
     if message.from_user.id in history:
