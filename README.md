@@ -10,6 +10,7 @@ To host the bot localy on Android phone follow this steps:
  2) [Install Termux](https://f-droid.org/packages/com.termux/)
  3) [Install AnLinux](https://f-droid.org/packages/exa.lnx.a/)
  4) Install Ubuntu dashboard following instructions in AnLinux
+
  In termux:
  5) ./start-ubuntu.sh
  6) ```apt update && apt upgrade```
