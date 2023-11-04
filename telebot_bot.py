@@ -3,15 +3,13 @@ import g4f
 from googletrans import Translator
 import telebot
 from proxy_randomizer import RegisteredProviders
-
-
+import re
 
 translator = Translator()
 
 bot = telebot.TeleBot(config.BOT_TOKEN)
-global lang
-lang = 'en'
 
+lang = {123 : 'en'}
 history = {123 : ['test', 'test']}
 history_max_length = 4
 
@@ -39,7 +37,8 @@ def list_commands(message):
     bot.send_message(message.from_user.id,
     """
 /new to start new dialogue
-/lang en/ru to set output language
+/lang <language> to set output language
+/translate <language> <text> to translate text to language
     """)
 
 @bot.message_handler(commands = ['new'])
@@ -51,16 +50,21 @@ def clear_history(message):
 
 @bot.message_handler(commands = ['lang'])
 def lang_process(language):
-    global lang
     line = language.text
-    lang = line[line.find('/')+line[line.find('/')+1:].strip().find(' ')+1:].strip() 
-    bot.send_message(language.from_user.id, f"Language set to: {lang}")
+    lang[language.from_user.id] = line[line.find('/')+line[line.find('/')+1:].strip().find(' ')+1:].strip() 
+    bot.send_message(language.from_user.id, f"Language set to: {lang[language.from_user.id]}")
+
+@bot.message_handler(commands = ['translate'])
+def translate_message(message):
+    line = message.text
+    dest = re.search('(?<=\/translate) .. (?=<*)',line).group(0).strip()
+    text = re.search('(?<=\/translate .. ).*',line).group(0)
+    bot.send_message(message.from_user.id, f"{translator.translate(text,dest = dest).text}")
 
 @bot.message_handler(content_types='text')
 def gettext(message):
-#    try:
-        global lang
-        bot.send_message(message.from_user.id, "Минуточку...")
+    try:
+        bot.send_message(message.from_user.id, "One minute...")
 
         en_txt = translator.translate(message.text,dest = 'en') 
 
@@ -72,10 +76,10 @@ def gettext(message):
         ans = gpt_answer(prompt)
 
         try:
-            ans_ru = translator.translate(ans,dest = lang).text
+            ans_ru = translator.translate(ans,dest = lang[message.from_user.id]).text
         except:
-            lang = 'en'
-            ans_ru = translator.translate(ans,dest = lang).text
+            lang[message.from_user.id] = 'en'
+            ans_ru = translator.translate(ans,dest = lang[message.from_user.id]).text
 
         if message.from_user.id in history:
             if len(history[message.from_user.id])+2 <= history_max_length:
@@ -86,10 +90,9 @@ def gettext(message):
         else:
             history[message.from_user.id] = ['user: ' + message.text, 'AI assistant: ' + ans] 
 
-        #print('\n'.join(history[message.from_user.id]))
         bot.send_message(message.from_user.id, ans_ru)
-#    except:
-#        bot.send_message(message.from_user.id, "Что-то пошло не так :( Повторите запрос")
+    except:
+        bot.send_message(message.from_user.id, "Что-то пошло не так :( Повторите запрос")
 
         
 
