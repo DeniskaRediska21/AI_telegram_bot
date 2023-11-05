@@ -4,6 +4,7 @@ from googletrans import Translator
 import telebot
 from proxy_randomizer import RegisteredProviders
 import re
+import formatting
 
 translator = Translator()
 
@@ -99,8 +100,12 @@ def gettext(message):
                 history[message.from_user.id].extend(['user: ' + message.text, 'AI assistant: ' + ans])
         else:
             history[message.from_user.id] = ['user: ' + message.text, 'AI assistant: ' + ans] 
+        
+        try:
+            bot.send_message(message.from_user.id, formatting.format_for_markdown(ans_ru),parse_mode = 'MarkdownV2')
+        except:
+            bot.send_message(message.from_user.id, ans_ru)
 
-        bot.send_message(message.from_user.id, ans_ru)
     except:
         bot.send_message(message.from_user.id, "Что-то пошло не так :( Повторите запрос")
 
