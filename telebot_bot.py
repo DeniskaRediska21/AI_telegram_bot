@@ -36,10 +36,12 @@ def gpt_answer(prompt):
 def list_commands(message):
     bot.send_message(message.from_user.id,
     """
-/new to start new dialogue
-/lang <language> to set output language
-/translate <language> <text> to translate text to language
-    """)
+This is a multilanguage ChatGPT3\.5 based chatbot\.    
+*/new* \- to start new dialogue
+*/lang \<language\>* \- to set output language
+*/translate \<language\> \<text\>* \- to translate text to language
+*/help* \- to see this message again
+    """, parse_mode ='MarkdownV2')
 
 @bot.message_handler(commands = ['new'])
 def clear_history(message):
@@ -51,15 +53,23 @@ def clear_history(message):
 @bot.message_handler(commands = ['lang'])
 def lang_process(language):
     line = language.text
-    lang[language.from_user.id] = line[line.find('/')+line[line.find('/')+1:].strip().find(' ')+1:].strip() 
+    try:
+        lang[language.from_user.id] = re.search('(?<=\/lang )[A-Za-z]{2}',line).group(0)
+    except:
+        if not (language.from_user.id in lang):
+            lang[language.from_user.id] = 'en'
     bot.send_message(language.from_user.id, f"Language set to: {lang[language.from_user.id]}")
 
 @bot.message_handler(commands = ['translate'])
 def translate_message(message):
-    line = message.text
-    dest = re.search('(?<=\/translate) .. (?=<*)',line).group(0).strip()
-    text = re.search('(?<=\/translate .. ).*',line).group(0)
-    bot.send_message(message.from_user.id, f"{translator.translate(text,dest = dest).text}")
+    try:
+        line = message.text
+        dest = re.search('(?<=\/translate )[A-Za-z]{2}',line).group(0)
+        text = re.search('(?<=\/translate .. ).*',line).group(0)
+        bot.send_message(message.from_user.id, f"{translator.translate(text,dest = dest).text}")
+    except:
+        bot.send_message(message.from_user.id, "Please make sure your message is structured like this: /translate <language> <text>")
+    
 
 @bot.message_handler(content_types='text')
 def gettext(message):
