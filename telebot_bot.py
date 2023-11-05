@@ -75,6 +75,7 @@ def translate_message(message):
 @bot.message_handler(content_types='text')
 def gettext(message):
     try:
+        print(f'Started processing {message.from_user.id}')
         bot.send_message(message.from_user.id, "One minute...")
 
         en_txt = translator.translate(message.text,dest = 'en') 
@@ -105,6 +106,7 @@ def gettext(message):
             bot.send_message(message.from_user.id, formatting.format_for_markdown(ans_ru),parse_mode = 'MarkdownV2')
         except:
             bot.send_message(message.from_user.id, ans_ru)
+        print(f'Processed {message.from_user.id}')
 
     except:
         bot.send_message(message.from_user.id, "Что-то пошло не так :( Повторите запрос")
