@@ -1,7 +1,8 @@
 import re
 
 def insert_backslash(text):
-   return re.sub(r'([^a-zA-Z\n `])', r'\\\1', text)
+   return re.sub(r'([^a-zA-Z\n `А-Яа-я])', r'\\\1', text)
+   #return re.sub(r'([\\\*\_\`\{\}\[\]\(\)\#\+\-\.\!\|])', r'\\\1', text)
 
 
 def split_text_by_spans(text, spans):
