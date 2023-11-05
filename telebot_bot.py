@@ -74,7 +74,10 @@ def translate_message(message):
     
 
 @bot.message_handler(content_types='text')
-def gettext(message):
+def handler(message):
+    threading.Thread(target = gettext,args=(bot,message)).start()
+
+def gettext(bot,message):
     try:
         print(f'Started processing {message.from_user.id}')
         bot.send_message(message.from_user.id, "One minute...")
@@ -116,4 +119,4 @@ def gettext(message):
 def run_bot():
     bot.polling(none_stop=True,interval = 0)
 
-threading.Thread(target=run_bot).start()
+run_bot()
