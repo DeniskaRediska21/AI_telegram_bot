@@ -5,7 +5,8 @@ import telebot
 from proxy_randomizer import RegisteredProviders
 import re
 import formatting
-import threading
+from multiprocessing import Process
+
 
 translator = Translator()
 
@@ -75,7 +76,7 @@ def translate_message(message):
 
 @bot.message_handler(content_types='text')
 def handler(message):
-    threading.Thread(target = gettext,args=(bot,message)).start()
+    p = Process(target = gettext, args = (bot,message)).start()
 
 def gettext(bot,message):
     try:
@@ -120,3 +121,4 @@ def run_bot():
     bot.polling(none_stop=True,interval = 0)
 
 run_bot()
+
