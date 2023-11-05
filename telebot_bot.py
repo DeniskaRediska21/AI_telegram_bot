@@ -5,6 +5,7 @@ import telebot
 from proxy_randomizer import RegisteredProviders
 import re
 import formatting
+import threading
 
 translator = Translator()
 
@@ -112,6 +113,7 @@ def gettext(message):
         bot.send_message(message.from_user.id, "Что-то пошло не так :( Повторите запрос")
 
         
+def run_bot():
+    bot.polling(none_stop=True,interval = 0)
 
-
-bot.polling(none_stop=True,interval = 0)
+threading.Thread(target=run_bot).start()
