@@ -109,11 +109,15 @@ def gettext(bot,message):
                 history[message.from_user.id].extend(['user: ' + message.text, 'AI assistant: ' + ans])
         else:
             history[message.from_user.id] = ['user: ' + message.text, 'AI assistant: ' + ans] 
-        
-        try:
-            bot.send_message(message.from_user.id, formatting.format_for_markdown(ans_ru),parse_mode = 'MarkdownV2')
-        except:
+
+        if lang[message.from_user.id] == 'en': 
+            try:
+                bot.send_message(message.from_user.id, formatting.format_for_markdown(ans_ru),parse_mode = 'MarkdownV2')
+            except:
+                bot.send_message(message.from_user.id, ans_ru)
+        else:
             bot.send_message(message.from_user.id, ans_ru)
+
         print(f'Processed {message.from_user.id}, provider: {provider}')
 
     except:
