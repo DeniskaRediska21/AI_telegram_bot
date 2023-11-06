@@ -44,4 +44,4 @@ To host the bot localy on Android phone follow this steps:
 
 ## Showcase of formatting
 
-!(MarkdownV2 formattiog)[Media/Markdown_showcase.png]
+![MarkdownV2 formattiog](Media/Markdown_showcase.png)
