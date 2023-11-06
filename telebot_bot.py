@@ -17,6 +17,8 @@ lang = {123 : 'en'}
 global history
 history = {123 : ['test', 'test']}
 history_max_length = 4
+m = Manager()
+q = m.Queue()
 
 def gpt_answer(prompt):
     providers = [
@@ -74,13 +76,26 @@ def translate_message(message):
     try:
         line = message.text
         dest = re.search('(?<=\/translate )[A-Za-z]{2}',line).group(0)
-        text = re.search('(?<=\/translate .. ).*',line).group(0)
+        #text = re.search('(?<=\/translate .. ).*',line).group(0)
+        if len(line) >13:
+            text = line[13:]
+        else:
+
+            try:
+                history[message.from_user.id] = q.get(False)
+            except: 
+                pass
+
+            if message.from_user.id in history:
+                text = history[message.from_user.id][-1]
+            else:
+                bot.send_message(message.from_user.id, "Please make sure your message is structured like this: /translate <language> <text>")
+ 
+            
         bot.send_message(message.from_user.id, f"{translator.translate(text,dest = dest).text}")
     except:
         bot.send_message(message.from_user.id, "Please make sure your message is structured like this: /translate <language> <text>")
     
-m = Manager()
-q = m.Queue()
 
 @bot.message_handler(content_types='text')
 def handler(message):
