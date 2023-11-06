@@ -6,6 +6,8 @@ Features:
 + Bot tryes to avoid detection by using proxi_randomizer library.
 + Bot uses googletrans library to work in multiple languages
 + Bot formats answers to show code in MarkdownV2 format when possible
++ Bot remembers ```history_max_length``` previous questions and answers, so could be asked to elaborate on answer. History can be cleared with ```/new``` command in telegram
++ Bot can translate message using googletrans to specified language using ```/translate <language> <text>``` command in telegram
 
 Downsides:
 + Parallelism is acheived through multiprocessing library, had no luck with asyncio
