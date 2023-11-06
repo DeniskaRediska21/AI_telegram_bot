@@ -20,6 +20,13 @@ history_max_length = 4
 m = Manager()
 q = m.Queue()
 
+def get_last_item(queue):
+    last_item = None
+    while not queue.empty():
+        last_item = queue.get()
+    return last_item
+
+
 def gpt_answer(prompt):
     providers = [
     g4f.Provider.GPTalk, # Worked with proxi
