@@ -5,14 +5,16 @@ import telebot
 from proxy_randomizer import RegisteredProviders
 import re
 import formatting
-from multiprocessing import Process
+from multiprocessing import Process, Manager
 import random
+import multiprocessing
 
 translator = Translator()
 
 bot = telebot.TeleBot(config.BOT_TOKEN)
 
 lang = {123 : 'en'}
+global history
 history = {123 : ['test', 'test']}
 history_max_length = 4
 
@@ -21,20 +23,21 @@ def gpt_answer(prompt):
     g4f.Provider.GPTalk, # Worked with proxi
     g4f.Provider.Liaobots,# Worked with proxi
     g4f.Provider.Phind,# Worked with proxi
-    g4f.Provider.ChatBase,# Worked with proxi
+    #g4f.Provider.ChatBase,# Worked with proxi
     g4f.Provider.ChatgptAi,# Worked with proxi
-    g4f.Provider.Llama2,# Worked with proxi
+    #g4f.Provider.Llama2,# Worked with proxi
     ]
     random.shuffle(providers)
+    print(prompt)
     for provider in providers:
         try:
             rp = RegisteredProviders()
             rp.parse_providers()
             proxi = rp.get_random_proxy()
-            completion = g4f.ChatCompletion.create(proxi=proxi,model = "gpt-3.5-turbo",messages = [{"role":"user","content":prompt}])
+            completion = g4f.ChatCompletion.create(timeout=120,proxi=proxi,model = "gpt-3.5-turbo",messages = [{"role":"user","content":prompt}])
             break
         except:
-            pass
+            continue
 
     return completion,provider
 
@@ -76,20 +79,33 @@ def translate_message(message):
     except:
         bot.send_message(message.from_user.id, "Please make sure your message is structured like this: /translate <language> <text>")
     
+m = Manager()
+q = m.Queue()
 
 @bot.message_handler(content_types='text')
 def handler(message):
-    p = Process(target = gettext, args = (bot,message)).start()
+    global history
+    try:
+        history[message.from_user.id] = q.get(False)
+    except: 
+        pass
+    print(history)
+    if message.from_user.id in history:
+            thread_history = history[message.from_user.id]
+    else:
+        thread_history = []
+        
+    p = Process(target = gettext, args = (bot,message,thread_history,lang,q)).start()
 
-def gettext(bot,message):
+
+def gettext(bot,message,history,lang,q):
     try:
         print(f'Started processing {message.from_user.id}')
         bot.send_message(message.from_user.id, "One minute...")
 
         en_txt = translator.translate(message.text,dest = 'en') 
-
-        if message.from_user.id in history:
-            prompt ='\n'.join(['Dont include the dialogue in your answer, dont include "AI assistant in answer"','\n'.join(history[message.from_user.id]),"user: " + en_txt.text]) 
+        if len(history)>0:
+            prompt ='\n'.join(['Dont include the dialogue in your answer, dont include "AI assistant in answer"','\n'.join(history),"user: " + en_txt.text]) 
         else:
             prompt = en_txt.text 
         
@@ -101,14 +117,12 @@ def gettext(bot,message):
             lang[message.from_user.id] = 'en'
             ans_ru = translator.translate(ans,dest = lang[message.from_user.id]).text
 
-        if message.from_user.id in history:
-            if len(history[message.from_user.id])+2 <= history_max_length:
-                    history[message.from_user.id].extend(['user: ' + message.text, 'AI assistant: ' + ans])
-            else:
-                history[message.from_user.id][0:2] = []  
-                history[message.from_user.id].extend(['user: ' + message.text, 'AI assistant: ' + ans])
+        if len(history)+2 <= history_max_length:
+                history.extend(['user: ' + message.text, 'AI assistant: ' + ans])
         else:
-            history[message.from_user.id] = ['user: ' + message.text, 'AI assistant: ' + ans] 
+            history[0:2] = []  
+            history.extend(['user: ' + message.text, 'AI assistant: ' + ans])
+        q.put(history)
 
         if lang[message.from_user.id] == 'en': 
             try:
