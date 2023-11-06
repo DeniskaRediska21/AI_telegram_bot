@@ -6,7 +6,7 @@ from proxy_randomizer import RegisteredProviders
 import re
 import formatting
 from multiprocessing import Process
-
+import random
 
 translator = Translator()
 
@@ -17,12 +17,15 @@ history = {123 : ['test', 'test']}
 history_max_length = 4
 
 def gpt_answer(prompt):
-    providers = [g4f.Provider.Aichat,
-                g4f.Provider.ChatBase,
-                g4f.Provider.Bing,
-                g4f.Provider.GptGo,
-                g4f.Provider.You,
-                g4f.Provider.Yqcloud]
+    providers = [
+    g4f.Provider.GPTalk, # Worked with proxi
+    g4f.Provider.Liaobots,# Worked with proxi
+    g4f.Provider.Phind,# Worked with proxi
+    g4f.Provider.ChatBase,# Worked with proxi
+    g4f.Provider.ChatgptAi,# Worked with proxi
+    g4f.Provider.Llama2,# Worked with proxi
+    ]
+    random.shuffle(providers)
     for provider in providers:
         try:
             rp = RegisteredProviders()
@@ -33,7 +36,7 @@ def gpt_answer(prompt):
         except:
             pass
 
-    return completion
+    return completion,provider
 
 @bot.message_handler(commands = ['help','start'])
 def list_commands(message):
@@ -90,7 +93,7 @@ def gettext(bot,message):
         else:
             prompt = en_txt.text 
         
-        ans = gpt_answer(prompt)
+        ans,provider = gpt_answer(prompt)
 
         try:
             ans_ru = translator.translate(ans,dest = lang[message.from_user.id]).text
@@ -111,7 +114,7 @@ def gettext(bot,message):
             bot.send_message(message.from_user.id, formatting.format_for_markdown(ans_ru),parse_mode = 'MarkdownV2')
         except:
             bot.send_message(message.from_user.id, ans_ru)
-        print(f'Processed {message.from_user.id}')
+        print(f'Processed {message.from_user.id}, provider: {provider}')
 
     except:
         bot.send_message(message.from_user.id, "Что-то пошло не так :( Повторите запрос")
