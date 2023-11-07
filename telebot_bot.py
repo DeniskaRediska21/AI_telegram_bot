@@ -8,6 +8,7 @@ import formatting
 from multiprocessing import Process, Manager
 import random
 import multiprocessing
+import time
 
 translator = Translator()
 
@@ -19,6 +20,13 @@ history = {123 : ['test', 'test']}
 history_max_length = 4
 m = Manager()
 q = m.Queue()
+
+def get_last_item(queue):
+    last_item = None
+    while not queue.empty():
+        last_item = queue.get()
+    return last_item
+
 
 def gpt_answer(prompt):
     providers = [
@@ -154,7 +162,11 @@ def gettext(bot,message,history,lang,q):
 
         
 def run_bot():
-    bot.polling(none_stop=True,interval = 0)
-
-run_bot()
+    try:
+        bot.polling(none_stop=True,interval = 0)
+    except:
+        print('Error while polling')
+while True:
+    run_bot()
+    time.sleep(5)
 
