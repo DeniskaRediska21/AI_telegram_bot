@@ -8,6 +8,7 @@ import formatting
 from multiprocessing import Process, Manager
 import random
 import multiprocessing
+import time
 
 translator = Translator()
 
@@ -161,7 +162,11 @@ def gettext(bot,message,history,lang,q):
 
         
 def run_bot():
-    bot.polling(none_stop=True,interval = 0)
-
-run_bot()
+    try:
+        bot.polling(none_stop=True,interval = 0)
+    except:
+        print('Error while polling')
+while True:
+    run_bot()
+    time.sleep(5)
 
