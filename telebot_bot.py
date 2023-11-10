@@ -140,7 +140,6 @@ def handler(message):
         history[message.from_user.id] = q.get(False)
     except: 
         pass
-    print(history)
     if message.from_user.id in history:
             thread_history = history[message.from_user.id]
     else:
@@ -182,7 +181,10 @@ def gettext(bot,message,history,lang,q):
                 bot.send_message(message.from_user.id, ans_ru)
         else:
             bot.send_message(message.from_user.id, ans_ru)
-
+        with open(f"Logs/{message.from_user.id}.txt", "a") as log_file:
+            log_file.write(f'{message.from_user.first_name} {message.from_user.last_name} {message.from_user.id}: {message.text}\nbot: {ans_ru}\n')
+            
+        
         print(f'Processed {message.from_user.id}, provider: {provider}')
 
     except:
