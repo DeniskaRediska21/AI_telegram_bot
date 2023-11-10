@@ -9,6 +9,7 @@ from multiprocessing import Process, Manager
 import random
 import multiprocessing
 import time
+import os
 
 translator = Translator()
 
@@ -20,6 +21,19 @@ history = {123 : ['test', 'test']}
 history_max_length = 4
 m = Manager()
 q = m.Queue()
+
+
+def send_file_via_telegram(bot, chat_id, file_path):
+    with open(file_path, 'rb') as file:
+        bot.send_document(chat_id, file)
+
+def write_text_to_file(file_path, text):
+    try:
+        with open('User_files/'+file_path, 'w') as file:
+            file.write(text)
+    except IOError:
+        print("Error: Failed to write text to", file_path)
+
 
 def get_last_item(queue):
     last_item = None
@@ -59,6 +73,7 @@ This is a multilanguage ChatGPT3\.5 based chatbot\.
 */new* \- to start new dialogue
 */lang \<language\>* \- to set output language
 */translate \<language\> \<text\>* \- to translate text to language
+*/file \<filename\> \<text\>* \- to write text to file and recieve written file via telegram
 */help* \- to see this message again
     """, parse_mode ='MarkdownV2')
 
@@ -67,6 +82,19 @@ def clear_history(message):
     if message.from_user.id in history:
         del history[message.from_user.id]
     bot.send_message(message.from_user.id, "New dialogue started")
+
+@bot.message_handler(commands = ['file'])
+def send_file(message):
+    line = message.text
+    filename = re.findall('(?<=\/file )[A-Za-z_.]*',line)[0]
+    text = line[5+len(filename)+2:]
+    try:
+        os.mkdir('User_files')
+    except FileExistsError:
+        pass
+    write_text_to_file(filename,text)
+    send_file_via_telegram(bot,message.from_user.id,'User_files/'+filename)
+    os.remove('User_files/'+filename)
 
 
 @bot.message_handler(commands = ['lang'])
