@@ -11,6 +11,7 @@ import multiprocessing
 import time
 import os
 
+
 translator = Translator()
 
 bot = telebot.TeleBot(config.BOT_TOKEN)
@@ -26,6 +27,7 @@ q = m.Queue()
 def send_file_via_telegram(bot, chat_id, file_path):
     with open(file_path, 'rb') as file:
         bot.send_document(chat_id, file)
+
 
 def write_text_to_file(file_path, text):
     try:
@@ -52,7 +54,6 @@ def gpt_answer(prompt):
     #g4f.Provider.Llama2,# Worked with proxi
     ]
     random.shuffle(providers)
-    print(prompt)
     for provider in providers:
         try:
             rp = RegisteredProviders()
@@ -74,6 +75,7 @@ This is a multilanguage ChatGPT3\.5 based chatbot\.
 */lang \<language\>* \- to set output language
 */translate \<language\> \<text\>* \- to translate text to language
 */file \<filename\> \<text\>* \- to write text to file and recieve written file via telegram
+*/draw \<image description\>* \- to generate image using StableDiffusionXL 
 */help* \- to see this message again
     """, parse_mode ='MarkdownV2')
 
@@ -83,6 +85,31 @@ def clear_history(message):
         del history[message.from_user.id]
     bot.send_message(message.from_user.id, "New dialogue started")
 
+import Stable_diffusion_XL
+from PIL import Image
+from io import BytesIO
+@bot.message_handler(commands = ['draw'])
+def generate_image_handler(message):
+    try:
+        prompt = message.text[6:]
+        prompt = translator.translate(prompt,dest = 'en').text
+        bot.send_message(message.from_user.id, "One minute...")
+        p = Process(target = generate_and_send_img, args = (bot,message,prompt)).start()
+            
+    except:
+        bot.send_message(message.from_user.id, "Something went wrong while generating :c")
+        
+        
+def generate_and_send_img(bot,message,prompt):
+    image = Stable_diffusion_XL.generate_image(prompt,n_steps = 100,n_refiner_steps = 100)
+    if image is not None:
+        image_bytes = BytesIO()
+        image.save(image_bytes, format='JPEG')
+        image_bytes.seek(0)
+        bot.send_photo(message.from_user.id, photo=image_bytes)
+    else:
+        bot.send_message(message.from_user.id,"Image generation is not working at the moment.")
+    
 @bot.message_handler(commands = ['file'])
 def send_file(message):
     line = message.text
