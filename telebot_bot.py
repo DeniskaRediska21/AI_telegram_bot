@@ -127,7 +127,7 @@ def talk_to_wolfram(message):
         
 def wolfram(bot,message,prompt):
     try:
-        query = urllib.parse.quote_plus(prompt)
+        query = urllib.parse.quote_plus(translator.translate(prompt,dest = 'en').text)
         query_url = f"http://api.wolframalpha.com/v2/query?" \
                     f"appid={config.WOLFRAM_ID}" \
                     f"&input={query}" \
@@ -141,9 +141,14 @@ def wolfram(bot,message,prompt):
         data = r["queryresult"]["pods"][0]["subpods"]
         result = data[0]["plaintext"]
         steps = data[1]["plaintext"]
+        if not (message.from_user.id in lang):
+            lang[message.from_user.id] = 'en'
 
-        bot.send_message(message.from_user.id, f"Result of {prompt} is '{result}'.")
-        bot.send_message(message.from_user.id, f"Possible steps to solution:{steps}")
+        answer_text = translator.translate(f"Result of \n'{prompt}'\nis\n{result}",dest = lang[message.from_user.id]).text
+        solution_text = translator.translate(f"Possible steps to solution:\n{steps}",dest = lang[message.from_user.id]).text
+
+        bot.send_message(message.from_user.id,answer_text)
+        bot.send_message(message.from_user.id,solution_text)
     except:
         bot.send_message(message.from_user.id, "Something went wrong while calculating :c")
     
