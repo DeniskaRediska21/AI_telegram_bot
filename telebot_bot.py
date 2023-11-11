@@ -10,7 +10,13 @@ import random
 import multiprocessing
 import time
 import os
-
+import wolframalpha
+from pprint import pprint
+import requests
+import urllib.parse
+import Stable_diffusion_XL
+from PIL import Image
+from io import BytesIO
 
 translator = Translator()
 
@@ -76,6 +82,7 @@ This is a multilanguage ChatGPT3\.5 based chatbot\.
 */translate \<language\> \<text\>* \- to translate text to language
 */file \<filename\> \<text\>* \- to write text to file and recieve written file via telegram
 */draw \<image description\>* \- to generate image using StableDiffusionXL 
+*/math \<math problem\>* \- to solve math problems using WolframAlpha
 */help* \- to see this message again
     """, parse_mode ='MarkdownV2')
 
@@ -85,9 +92,6 @@ def clear_history(message):
         del history[message.from_user.id]
     bot.send_message(message.from_user.id, "New dialogue started")
 
-import Stable_diffusion_XL
-from PIL import Image
-from io import BytesIO
 @bot.message_handler(commands = ['draw'])
 def generate_image_handler(message):
     try:
@@ -109,6 +113,39 @@ def generate_and_send_img(bot,message,prompt):
         bot.send_photo(message.from_user.id, photo=image_bytes)
     else:
         bot.send_message(message.from_user.id,"Image generation is not working at the moment.")
+
+
+
+@bot.message_handler(commands = ['math'])
+def talk_to_wolfram(message):
+        prompt = message.text[6:]
+        prompt = translator.translate(prompt,dest = 'en').text
+        bot.send_message(message.from_user.id, "One minute...")
+        p = Process(target = wolfram, args = (bot,message,prompt)).start()
+            
+        
+        
+def wolfram(bot,message,prompt):
+    try:
+        query = urllib.parse.quote_plus(prompt)
+        query_url = f"http://api.wolframalpha.com/v2/query?" \
+                    f"appid={config.WOLFRAM_ID}" \
+                    f"&input={query}" \
+                    f"&scanner=Solve" \
+                    f"&podstate=Result__Step-by-step+solution" \
+                    "&format=plaintext" \
+                    f"&output=json"
+
+        r = requests.get(query_url).json()
+
+        data = r["queryresult"]["pods"][0]["subpods"]
+        result = data[0]["plaintext"]
+        steps = data[1]["plaintext"]
+
+        bot.send_message(message.from_user.id, f"Result of {prompt} is '{result}'.")
+        bot.send_message(message.from_user.id, f"Possible steps to solution:{steps}")
+    except:
+        bot.send_message(message.from_user.id, "Something went wrong while calculating :c")
     
 @bot.message_handler(commands = ['file'])
 def send_file(message):
