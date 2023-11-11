@@ -14,6 +14,9 @@ import wolframalpha
 from pprint import pprint
 import requests
 import urllib.parse
+import Stable_diffusion_XL
+from PIL import Image
+from io import BytesIO
 
 translator = Translator()
 
@@ -79,7 +82,7 @@ This is a multilanguage ChatGPT3\.5 based chatbot\.
 */translate \<language\> \<text\>* \- to translate text to language
 */file \<filename\> \<text\>* \- to write text to file and recieve written file via telegram
 */draw \<image description\>* \- to generate image using StableDiffusionXL 
-*/math \<math problem\>* \- to solve math problems
+*/math \<math problem\>* \- to solve math problems using WolframAlpha
 */help* \- to see this message again
     """, parse_mode ='MarkdownV2')
 
@@ -89,9 +92,6 @@ def clear_history(message):
         del history[message.from_user.id]
     bot.send_message(message.from_user.id, "New dialogue started")
 
-import Stable_diffusion_XL
-from PIL import Image
-from io import BytesIO
 @bot.message_handler(commands = ['draw'])
 def generate_image_handler(message):
     try:
