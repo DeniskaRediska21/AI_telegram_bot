@@ -29,7 +29,16 @@ history_max_length = 4
 m = Manager()
 q = m.Queue()
 
+def make_directory(directory):
+    if not os.path.exists(directory):
+        # Create the directory
+        os.makedirs(directory)
+        print("Directory created successfully!")
+    else:
+        print("Directory already exists!")
 
+make_directory('Logs')
+make_directory('User_files')
 def send_file_via_telegram(bot, chat_id, file_path):
     with open(file_path, 'rb') as file:
         bot.send_document(chat_id, file)
@@ -56,7 +65,7 @@ def gpt_answer(prompt):
     g4f.Provider.Liaobots,# Worked with proxi
     g4f.Provider.Phind,# Worked with proxi
     #g4f.Provider.ChatBase,# Worked with proxi
-    g4f.Provider.ChatgptAi,# Worked with proxi
+    #g4f.Provider.ChatgptAi,# Worked with proxi
     #g4f.Provider.Llama2,# Worked with proxi
     ]
     random.shuffle(providers)
@@ -105,7 +114,7 @@ def generate_image_handler(message):
         
         
 def generate_and_send_img(bot,message,prompt):
-    image = Stable_diffusion_XL.generate_image(prompt,n_steps = 100,n_refiner_steps = 100)
+    image = Stable_diffusion_XL.generate_image(prompt,n_steps = 100,n_refiner_steps = 100,height=768,width=1024)
     if image is not None:
         image_bytes = BytesIO()
         image.save(image_bytes, format='JPEG')
