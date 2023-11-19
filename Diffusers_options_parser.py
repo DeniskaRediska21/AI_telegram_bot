@@ -50,7 +50,7 @@ def parse_diffusion_options(diffusion_options,message):
             int(width[0]) if width else current_options[5],
             int(refiner_steps[0]) if refiner_steps else current_options[6],
             int(steps[0]) if steps else current_options[7],
-            int(model[0]) if model else current_options[8],
+            model[0] if model else current_options[8],
             lcm[0] == 'True'  if lcm else current_options[9],
             ]
     diffusion_options[message.from_user.id] = options
