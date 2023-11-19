@@ -17,6 +17,9 @@ import urllib.parse
 import Stable_diffusion_XL
 from PIL import Image
 from io import BytesIO
+import pickle
+import Diffusers_options_parser
+
 
 translator = Translator()
 
@@ -25,9 +28,12 @@ bot = telebot.TeleBot(config.BOT_TOKEN)
 lang = {123 : 'en'}
 global history
 history = {123 : ['test', 'test']}
+diffusion_options= {1 : [False, False,'',8,512,512,100,100,'xl',True]}
 history_max_length = 4
 m = Manager()
 q = m.Queue()
+
+
 
 def make_directory(directory):
     if not os.path.exists(directory):
@@ -39,6 +45,16 @@ def make_directory(directory):
 
 make_directory('Logs')
 make_directory('User_files')
+make_directory('Cache')
+
+if os.path.isfile('Cache/lang.pickle'):
+    with open('Cache/lang.pickle', 'rb') as handle:
+        lang = pickle.load(handle)
+
+if os.path.isfile('Cache/diffusion.pickle'):
+    with open('Cache/diffusion.pickle', 'rb') as handle:
+        diffusion_options = pickle.load(handle)
+    
 def send_file_via_telegram(bot, chat_id, file_path):
     with open(file_path, 'rb') as file:
         bot.send_document(chat_id, file)
@@ -114,7 +130,10 @@ def generate_image_handler(message):
         
         
 def generate_and_send_img(bot,message,prompt):
-    image = Stable_diffusion_XL.generate_image(prompt,n_steps = 100,n_refiner_steps = 100,height=768,width=1024)
+    if message.from_user.id in diffusion_options:    
+        image = Stable_diffusion_XL.generate_image(prompt,*diffusion_options[message.from_user.id])
+    else:
+        image = Stable_diffusion_XL.generate_image(prompt,*diffusion_options[1])
     if image is not None:
         image_bytes = BytesIO()
         image.save(image_bytes, format='JPEG')
@@ -183,7 +202,53 @@ def lang_process(language):
     except:
         if not (language.from_user.id in lang):
             lang[language.from_user.id] = 'en'
+    with open('Cache/lang.pickle', 'wb') as handle:
+        pickle.dump(lang,handle)
     bot.send_message(language.from_user.id, f"Language set to: {lang[language.from_user.id]}")
+
+
+@bot.message_handler(commands = ['diffusion'])
+def diffusion_setup(message):
+    try:
+        global diffusion_options
+        if len(message.text) == 10:
+            if message.from_user.id in diffusion_options:
+                bot.send_message(message.from_user.id,f'''
+    Current Options:
+        refine = {diffusion_options[message.from_user.id][0]}
+        upscale = {diffusion_options[message.from_user.id][1]}
+        negative prompt = {diffusion_options[message.from_user.id][2]}
+        guidance scale= {diffusion_options[message.from_user.id][3]}
+        height = {diffusion_options[message.from_user.id][4]}
+        width = {diffusion_options[message.from_user.id][5]}
+        refiner steps = {diffusion_options[message.from_user.id][6]}
+        steps = {diffusion_options[message.from_user.id][7]}
+        model = {diffusion_options[message.from_user.id][8]}
+        lcm = {diffusion_options[message.from_user.id][9]}
+                ''')
+            else:
+                bot.send_message(message.from_user.id,f'''
+    Current Options:
+        refine = {diffusion_options[1][0]}
+        upscale = {diffusion_options[1][1]}
+        negative prompt = {diffusion_options[1][2]}
+        guidance scale= {diffusion_options[1][3]}
+        height = {diffusion_options[1][4]}
+        width = {diffusion_options[1][5]}
+        refiner steps = {diffusion_options[1][6]}
+        steps = {diffusion_options[1][7]}
+        model = {diffusion_options[1][8]}
+        lcm = {diffusion_options[1][9]}
+                ''')
+
+        else: 
+            diffusion_options = Diffusers_options_parser.parse_diffusion_options(diffusion_options,message)
+            bot.send_message(message.from_user.id, 'Options set')
+            with open('Cache/diffusion.pickle', 'wb') as handle:
+                pickle.dump(diffusion_options,handle)
+    except:
+        bot.send_message(message.from_user.id, 'Something went wrong while parsing options')
+
 
 @bot.message_handler(commands = ['translate'])
 def translate_message(message):
