@@ -215,8 +215,8 @@ def lang_process(language):
 
 @bot.message_handler(commands = ['diffusion'])
 def diffusion_setup(message):
+    global diffusion_options
     try:
-        global diffusion_options
         if len(message.text) == 10:
             if message.from_user.id in diffusion_options:
                 bot.send_message(message.from_user.id,f'''
@@ -252,6 +252,21 @@ def diffusion_setup(message):
         else: 
             diffusion_options = Diffusers_options_parser.parse_diffusion_options(diffusion_options,message)
             bot.send_message(message.from_user.id, 'Options set')
+            bot.send_message(message.from_user.id,f'''
+Current Options:
+    refine = {diffusion_options[message.from_user.id][0]}
+    upscale = {diffusion_options[message.from_user.id][1]}
+    negative prompt = {diffusion_options[message.from_user.id][2]}
+    guidance scale= {diffusion_options[message.from_user.id][3]}
+    height = {diffusion_options[message.from_user.id][4]}
+    width = {diffusion_options[message.from_user.id][5]}
+    refiner steps = {diffusion_options[message.from_user.id][6]}
+    steps = {diffusion_options[message.from_user.id][7]}
+    model = {diffusion_options[message.from_user.id][8]}
+    lcm = {diffusion_options[message.from_user.id][9]}
+    vae = {diffusion_options[message.from_user.id][10]}
+            ''')
+
             with open('Cache/diffusion.pickle', 'wb') as handle:
                 pickle.dump(diffusion_options,handle)
     except:
