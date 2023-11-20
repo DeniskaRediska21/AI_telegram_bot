@@ -14,7 +14,16 @@ def plot_images(image):
     plt.show()
 
 
+def make_divisible_by_eight(number):
+    remainder = number % 8
+    if remainder != 0:
+        number += 8 - remainder
+    return number
+
+    
 def generate_image(prompt,do_refine = False, do_upscale = False,negative_prompt = '',guidance_scale = 8,height=768,width=1024,n_refiner_steps = 100, n_steps = 100,type = 'xl',lcm = True,VAE = 'original'):
+    width = make_divisible_by_eight(width)
+    height = make_divisible_by_eight(height)
     
     if torch.cuda.is_available():
         if type == 'dsm':
