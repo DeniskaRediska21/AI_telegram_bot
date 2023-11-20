@@ -2,10 +2,10 @@ import torch
 from diffusers import StableDiffusionXLImg2ImgPipeline
 import os.path
 from diffusers import StableDiffusionXLPipeline, LCMScheduler, AutoPipelineForText2Image
-from diffusers import DiffusionPipeline
+from diffusers import DiffusionPipeline, AutoencoderKL
 from PIL import Image
 from upscalers import upscale
-
+import config
 
 def plot_images(image):
     import matplotlib.pyplot as plt
@@ -14,45 +14,63 @@ def plot_images(image):
     plt.show()
 
 
-def generate_image(prompt,do_refine = False, do_upscale = False,negative_prompt = '',guidance_scale = 8,height=768,width=1024,n_refiner_steps = 100, n_steps = 100,type = 'xl',lcm = True):
+def generate_image(prompt,do_refine = False, do_upscale = False,negative_prompt = '',guidance_scale = 8,height=768,width=1024,n_refiner_steps = 100, n_steps = 100,type = 'xl',lcm = True,VAE = 'original'):
     
     if torch.cuda.is_available():
-
         if type == 'dsm':
             model_id = 'stablediffusionapi/dark-sushi-mix'
             adapter_id = 'latent-consistency/lcm-lora-sdv1-5'
+            vae = AutoencoderKL.from_pretrained('stablediffusionapi/dark-sushi-mix',subfolder = 'vae',torch_dtype=torch.float16)
+        if type == 'om':
+            model_id = 'WarriorMama777/BloodOrangeMix'
+            adapter_id = 'latent-consistency/lcm-lora-sdv1-5'
+            vae = AutoencoderKL.from_pretrained('WarriorMama777/BloodOrangeMix',subfolder = 'vae',torch_dtype=torch.float16)
         elif type == 'ds':
             model_id = 'Lykon/DreamShaper'
             adapter_id = 'latent-consistency/lcm-lora-sdv1-5'
+            vae = AutoencoderKL.from_pretrained('Lykon/DreamShaper',subfolder = 'vae',torch_dtype=torch.float16)
         elif type == 'rv':
-            model_id = 'SG161222/Realistic_Vision_V5.1_noVAE'
+            model_id = 'stablediffusionapi/realistic-vision-v51'
             adapter_id = 'latent-consistency/lcm-lora-sdv1-5'
-        elif type == 'gd':
-            model_id = 'IShallRiseAgain/StudioGhibli'
-            adapter_id = 'latent-consistency/lcm-lora-sdv1-5'
+            vae = AutoencoderKL.from_pretrained('stablediffusionapi/realistic-vision-v51',subfolder = 'vae',torch_dtype=torch.float16)
         elif type == 'av5':
             model_id = 'stablediffusionapi/anything-v5'
             adapter_id = 'latent-consistency/lcm-lora-sdv1-5'
+            vae = AutoencoderKL.from_pretrained('stablediffusionapi/anything-v5',subfolder = 'vae',torch_dtype=torch.float16)
+        elif type == 'cf':
+            model_id = 'gsdf/Counterfeit-V2.5'
+            adapter_id = 'latent-consistency/lcm-lora-sdv1-5'
+            vae = AutoencoderKL.from_pretrained('gsdf/Counterfeit-V2.5',subfolder = 'vae',torch_dtype=torch.float16)
+        elif type == 'f2a':
+            model_id = 'jinaai/flat-2d-animerge'
+            adapter_id = 'latent-consistency/lcm-lora-sdv1-5'
+            vae = AutoencoderKL.from_pretrained('jinaai/flat-2d-animerge',subfolder = 'vae',torch_dtype=torch.float16)
+        elif type == 'pm':
+            model_id = 'JamesFlare/pastel-mix'
+            adapter_id = 'latent-consistency/lcm-lora-sdv1-5'
+            vae = AutoencoderKL.from_pretrained('JamesFlare/pastel-mix',subfolder = 'vae',torch_dtype=torch.float16)
         elif type == 'rvxl':
             model_id = 'SG161222/RealVisXL_V2.0'
             adapter_id = "latent-consistency/lcm-lora-sdxl"
+            vae = AutoencoderKL.from_pretrained('SG161222/RealVisXL_V2.0',subfolder = 'vae',torch_dtype=torch.float16)
         elif type == 'dsxl':
             model_id = "Lykon/dreamshaper-xl-1-0"
             adapter_id = "latent-consistency/lcm-lora-sdxl"
+            vae = AutoencoderKL.from_pretrained('Lykon/dreamshaper-xl-1-0',subfolder = 'vae',torch_dtype=torch.float16)
         elif type == 'ssd':
             model_id = "segmind/SSD-1B"
             adapter_id = "latent-consistency/lcm-lora-ssd-1b"
+            vae = AutoencoderKL.from_pretrained('segmind/SSD-1B',subfolder = 'vae',torch_dtype=torch.float16)
             
         else:
             model_id = "stabilityai/stable-diffusion-xl-base-1.0"
             adapter_id = "latent-consistency/lcm-lora-sdxl"
 
-        HF_TOKEN = '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' 
         pipe = DiffusionPipeline.from_pretrained(
                 model_id,
                 #safety_checker = None,
                 torch_dtype=torch.float16,
-                use_auth_token = HF_TOKEN,
+                use_auth_token = config.HF_TOKEN,
             )
         if lcm:
             n_steps = int(n_steps/10)
@@ -61,6 +79,12 @@ def generate_image(prompt,do_refine = False, do_upscale = False,negative_prompt 
             pipe.load_lora_weights(adapter_id,adapter_name = 'lcm')
             pipe.set_adapters(["lcm"],adapter_weights=[1.0])
 
+        if VAE != 'original':
+            if VAE == 'mse': 
+                vae = AutoencoderKL.from_pretrained("stabilityai/sd-vae-ft-mse",torch_dtype=torch.float16)
+            else:
+                vae = AutoencoderKL.from_pretrained("stabilityai/sd-vae-ft-ema",torch_dtype=torch.float16)
+        pipe.vae = vae
 
         pipe.enable_model_cpu_offload()
         #pipe.unet = torch.compile(pipe.unet, mode = 'max-autotune',fullgraph=True)

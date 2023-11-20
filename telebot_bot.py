@@ -28,7 +28,7 @@ bot = telebot.TeleBot(config.BOT_TOKEN)
 lang = {123 : 'en'}
 global history
 history = {123 : ['test', 'test']}
-diffusion_options= {1 : [False, False,'',8,512,512,100,100,'xl',True]}
+diffusion_options= {1 : [False, False,'',8,512,512,100,100,'xl',True,'original']}
 history_max_length = 4
 m = Manager()
 q = m.Queue()
@@ -116,6 +116,12 @@ def clear_history(message):
     if message.from_user.id in history:
         del history[message.from_user.id]
     bot.send_message(message.from_user.id, "New dialogue started")
+
+@bot.message_handler(commands = ['models'])
+def model_prompt(message):
+    bot.send_message(message.from_user.id, Diffusers_options_parser.DIFFUSION_MODEL_PROMPT)
+
+
 
 @bot.message_handler(commands = ['draw'])
 def generate_image_handler(message):
@@ -225,6 +231,7 @@ def diffusion_setup(message):
         steps = {diffusion_options[message.from_user.id][7]}
         model = {diffusion_options[message.from_user.id][8]}
         lcm = {diffusion_options[message.from_user.id][9]}
+        vae = {diffusion_options[message.from_user.id][10]}
                 ''')
             else:
                 bot.send_message(message.from_user.id,f'''
@@ -239,6 +246,7 @@ def diffusion_setup(message):
         steps = {diffusion_options[1][7]}
         model = {diffusion_options[1][8]}
         lcm = {diffusion_options[1][9]}
+        vae = {diffusion_options[1][10]}
                 ''')
 
         else: 
