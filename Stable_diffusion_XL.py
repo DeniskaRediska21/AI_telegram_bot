@@ -82,8 +82,10 @@ def generate_image(prompt,do_refine = False, do_upscale = False,negative_prompt 
         if VAE != 'original':
             if VAE == 'mse': 
                 vae = AutoencoderKL.from_pretrained("stabilityai/sd-vae-ft-mse",torch_dtype=torch.float16)
-            else:
+            elif VAE == 'ema':
                 vae = AutoencoderKL.from_pretrained("stabilityai/sd-vae-ft-ema",torch_dtype=torch.float16)
+            elif VAE == 'none':
+                vae = pipe.vae
         pipe.vae = vae
 
         pipe.enable_model_cpu_offload()
