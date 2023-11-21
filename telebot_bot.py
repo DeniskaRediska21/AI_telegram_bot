@@ -156,17 +156,15 @@ def generate_image_handler(message):
         prompt = message.text[6:]
         prompt = translator.translate(prompt,dest = 'en').text
         bot.send_message(message.from_user.id, "One minute...")
-        p = Process(target = generate_and_send_img, args = (bot,message,prompt)).start()
+        p = Process(target = generate_and_send_img, args = (bot,message,prompt,users[message.from_user.id].diffusion_options)).start()
             
     except:
         bot.send_message(message.from_user.id, "Something went wrong while generating :c")
         
         
-def generate_and_send_img(bot,message,prompt):
-    if message.from_user.id in diffusion_options:    
-        image = Stable_diffusion_XL.generate_image(prompt,*diffusion_options[message.from_user.id])
-    else:
-        image = Stable_diffusion_XL.generate_image(prompt,*diffusion_options[1])
+def generate_and_send_img(bot,message,prompt,diffusion_options):
+    
+    image = Stable_diffusion_XL.generate_image(prompt,*diffusion_options)
     if image is not None:
         image_bytes = BytesIO()
         image.save(image_bytes, format='JPEG')
