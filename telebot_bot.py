@@ -26,7 +26,7 @@ translator = Translator()
 bot = telebot.TeleBot(config.BOT_TOKEN)
 
 
-lang = {1 : 'en'}
+#lang = {1 : 'en'}
 global history
 history = {1 : ['test', 'test']}
 diffusion_options= {1 : [False, False,'',8,512,512,100,100,'xl',True,'original']}
@@ -62,9 +62,13 @@ make_directory('Logs')
 make_directory('User_files')
 make_directory('Cache')
 
-if os.path.isfile('Cache/lang.pickle'):
-    with open('Cache/lang.pickle', 'rb') as handle:
-        lang = pickle.load(handle)
+#if os.path.isfile('Cache/lang.pickle'):
+#    with open('Cache/lang.pickle', 'rb') as handle:
+#        lang = pickle.load(handle)
+
+if os.path.isfile('Cache/users.pickle'):
+    with open('Cache/users.pickle', 'rb') as handle:
+        users = pickle.load(handle)
 
 if os.path.isfile('Cache/diffusion.pickle'):
     with open('Cache/diffusion.pickle', 'rb') as handle:
@@ -180,11 +184,11 @@ def talk_to_wolfram(message):
     prompt = message.text[6:]
     prompt = translator.translate(prompt,dest = 'en').text
     bot.send_message(message.from_user.id, "One minute...")
-    p = Process(target = wolfram, args = (bot,message,prompt)).start()
+    p = Process(target = wolfram, args = (bot,message,prompt,users)).start()
             
         
         
-def wolfram(bot,message,prompt):
+def wolfram(bot,message,prompt,users):
     try:
         query = urllib.parse.quote_plus(translator.translate(prompt,dest = 'en').text)
         query_url = f"http://api.wolframalpha.com/v2/query?" \
@@ -200,11 +204,9 @@ def wolfram(bot,message,prompt):
         data = r["queryresult"]["pods"][0]["subpods"]
         result = data[0]["plaintext"]
         steps = data[1]["plaintext"]
-        if not (message.from_user.id in lang):
-            lang[message.from_user.id] = 'en'
 
-        answer_text = translator.translate(f"Result of \n'{prompt}'\nis\n{result}",dest = lang[message.from_user.id]).text
-        solution_text = translator.translate(f"Possible steps to solution:\n{steps}",dest = lang[message.from_user.id]).text
+        answer_text = translator.translate(f"Result of \n'{prompt}'\nis\n{result}",dest = users[message.from_user.id].lang).text
+        solution_text = translator.translate(f"Possible steps to solution:\n{steps}",dest = users[message.from_user.id].lang).text
 
         bot.send_message(message.from_user.id,answer_text)
         bot.send_message(message.from_user.id,solution_text)
@@ -352,7 +354,7 @@ def handler(message):
     else:
         thread_history = []
         
-    p = Process(target = gettext, args = (bot,message,thread_history,lang,q)).start()
+    p = Process(target = gettext, args = (bot,message,thread_history,users[message.from_user.id].lang,q)).start()
 
 
 def gettext(bot,message,history,lang,q):
@@ -369,10 +371,11 @@ def gettext(bot,message,history,lang,q):
         ans,provider = gpt_answer(prompt)
 
         try:
-            ans_ru = translator.translate(ans,dest = lang[message.from_user.id]).text
+            ans_ru = translator.translate(ans,dest = lang).text
         except:
-            lang[message.from_user.id] = 'en'
-            ans_ru = translator.translate(ans,dest = lang[message.from_user.id]).text
+            bot.send_message(message.from_user.id,f'I dont know language {lang}, I will answer in en')
+            lang = 'en'
+            ans_ru = translator.translate(ans,dest = lang).text
 
         if len(history)+2 <= history_max_length:
                 history.extend(['user: ' + message.text, 'AI assistant: ' + ans])
@@ -381,7 +384,7 @@ def gettext(bot,message,history,lang,q):
             history.extend(['user: ' + message.text, 'AI assistant: ' + ans])
         q.put(history)
 
-        if lang[message.from_user.id] == 'en': 
+        if lang == 'en': 
             try:
                 bot.send_message(message.from_user.id, formatting.format_for_markdown(ans_ru),parse_mode = 'MarkdownV2')
             except:
