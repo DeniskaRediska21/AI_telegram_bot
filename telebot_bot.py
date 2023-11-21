@@ -25,14 +25,29 @@ translator = Translator()
 
 bot = telebot.TeleBot(config.BOT_TOKEN)
 
-lang = {123 : 'en'}
+
+lang = {1 : 'en'}
 global history
-history = {123 : ['test', 'test']}
+history = {1 : ['test', 'test']}
 diffusion_options= {1 : [False, False,'',8,512,512,100,100,'xl',True,'original']}
+
+users = {}
+
 history_max_length = 4
 m = Manager()
 q = m.Queue()
 
+class User:
+    def __init__(self,message):
+        self.id = message.from_user.id
+        self.history = []
+        self.diffusion_options = [False, False,'',8,512,512,100,100,'xl',True,'original']
+
+def add_user(message,users):
+    if message.from_user.id not in users:
+        users[message.from_user.id] = User(message)
+
+    return users
 
 
 def make_directory(directory):
@@ -99,6 +114,8 @@ def gpt_answer(prompt):
 
 @bot.message_handler(commands = ['help','start'])
 def list_commands(message):
+    global users
+    users = add_user(message,users)
     bot.send_message(message.from_user.id,
     """
 This is a multilanguage ChatGPT3\.5 based chatbot\.    
@@ -113,18 +130,24 @@ This is a multilanguage ChatGPT3\.5 based chatbot\.
 
 @bot.message_handler(commands = ['new'])
 def clear_history(message):
+    global users
+    users = add_user(message,users)
     if message.from_user.id in history:
         del history[message.from_user.id]
     bot.send_message(message.from_user.id, "New dialogue started")
 
 @bot.message_handler(commands = ['models'])
 def model_prompt(message):
+    global users
+    users = add_user(message,users)
     bot.send_message(message.from_user.id, Diffusers_options_parser.DIFFUSION_MODEL_PROMPT)
 
 
 
 @bot.message_handler(commands = ['draw'])
 def generate_image_handler(message):
+    global users
+    users = add_user(message,users)
     try:
         prompt = message.text[6:]
         prompt = translator.translate(prompt,dest = 'en').text
@@ -152,10 +175,12 @@ def generate_and_send_img(bot,message,prompt):
 
 @bot.message_handler(commands = ['math'])
 def talk_to_wolfram(message):
-        prompt = message.text[6:]
-        prompt = translator.translate(prompt,dest = 'en').text
-        bot.send_message(message.from_user.id, "One minute...")
-        p = Process(target = wolfram, args = (bot,message,prompt)).start()
+    global users
+    users = add_user(message,users)
+    prompt = message.text[6:]
+    prompt = translator.translate(prompt,dest = 'en').text
+    bot.send_message(message.from_user.id, "One minute...")
+    p = Process(target = wolfram, args = (bot,message,prompt)).start()
             
         
         
@@ -188,6 +213,8 @@ def wolfram(bot,message,prompt):
     
 @bot.message_handler(commands = ['file'])
 def send_file(message):
+    global users
+    users = add_user(message,users)
     line = message.text
     filename = re.findall('(?<=\/file )[A-Za-z_.]*',line)[0]
     text = line[5+len(filename)+2:]
@@ -201,20 +228,30 @@ def send_file(message):
 
 
 @bot.message_handler(commands = ['lang'])
-def lang_process(language):
-    line = language.text
+def lang_process(message):
+    global users
+    users = add_user(message,users)
+
+    line = message.text
     try:
-        lang[language.from_user.id] = re.search('(?<=\/lang )[A-Za-z]{2}',line).group(0)
+        users[message.from_user.id].lang = re.search('(?<=\/lang )[A-Za-z]{2}',line).group(0) 
+        lang[message.from_user.id] = re.search('(?<=\/lang )[A-Za-z]{2}',line).group(0)
     except:
-        if not (language.from_user.id in lang):
-            lang[language.from_user.id] = 'en'
+        if not (message.from_user.id in lang):
+            lang[message.from_user.id] = 'en'
     with open('Cache/lang.pickle', 'wb') as handle:
         pickle.dump(lang,handle)
-    bot.send_message(language.from_user.id, f"Language set to: {lang[language.from_user.id]}")
+
+    with open('Cache/users.pickle', 'wb') as handle:
+        pickle.dump(users,handle)
+
+    bot.send_message(message.from_user.id, f"Language set to: {lang[message.from_user.id]}")
 
 
 @bot.message_handler(commands = ['diffusion'])
 def diffusion_setup(message):
+    global users
+    users = add_user(message,users)
     global diffusion_options
     try:
         if len(message.text) == 10:
@@ -275,6 +312,8 @@ Current Options:
 
 @bot.message_handler(commands = ['translate'])
 def translate_message(message):
+    global users
+    users = add_user(message,users)
     try:
         line = message.text
         dest = re.search('(?<=\/translate )[A-Za-z]{2}',line).group(0)
@@ -301,6 +340,8 @@ def translate_message(message):
 
 @bot.message_handler(content_types='text')
 def handler(message):
+    global users
+    users = add_user(message,users)
     global history
     try:
         history[message.from_user.id] = q.get(False)
@@ -358,10 +399,10 @@ def gettext(bot,message,history,lang,q):
 
         
 def run_bot():
-    try:
+#    try:
         bot.polling(none_stop=True,interval = 0)
-    except:
-        print('Error while polling')
+#    except:
+#        print('Error while polling')
 while True:
     run_bot()
     time.sleep(5)
