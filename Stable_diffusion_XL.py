@@ -1,11 +1,4 @@
 import torch
-from diffusers import StableDiffusionXLImg2ImgPipeline
-import os.path
-from diffusers import StableDiffusionXLPipeline, LCMScheduler, AutoPipelineForText2Image
-from diffusers import DiffusionPipeline, AutoencoderKL
-from PIL import Image
-from upscalers import upscale
-import config
 
 def plot_images(image):
     import matplotlib.pyplot as plt
@@ -26,6 +19,13 @@ def generate_image(prompt,do_refine = False, do_upscale = False,negative_prompt 
     height = make_divisible_by_eight(height)
     
     if torch.cuda.is_available():
+        from diffusers import StableDiffusionXLImg2ImgPipeline
+        import os.path
+        from diffusers import StableDiffusionXLPipeline, LCMScheduler, AutoPipelineForText2Image
+        from diffusers import DiffusionPipeline, AutoencoderKL
+        from PIL import Image
+        from upscalers import upscale
+        import config
         if type == 'dsm':
             model_id = 'stablediffusionapi/dark-sushi-mix'
             adapter_id = 'latent-consistency/lcm-lora-sdv1-5'

@@ -27,13 +27,14 @@ bot = telebot.TeleBot(config.BOT_TOKEN)
 
 
 #lang = {1 : 'en'}
-global history
-history = {1 : ['test', 'test']}
+#global history
+#history = {1 : ['test', 'test']}
 #diffusion_options= {1 : [False, False,'',8,512,512,100,100,'xl',True,'original']}
 
 users = {}
 
 history_max_length = 4
+
 m = Manager()
 q = m.Queue()
 
@@ -41,6 +42,7 @@ class User:
     def __init__(self,message):
         self.id = message.from_user.id
         self.history = []
+        self.lang = 'en'
         self.diffusion_options = [False, False,'',8,512,512,100,100,'xl',True,'original']
 
 def add_user(message,users):
@@ -136,8 +138,7 @@ This is a multilanguage ChatGPT3\.5 based chatbot\.
 def clear_history(message):
     global users
     users = add_user(message,users)
-    if message.from_user.id in history:
-        del history[message.from_user.id]
+    users[message.from_user.id].history = []
     bot.send_message(message.from_user.id, "New dialogue started")
 
 @bot.message_handler(commands = ['models'])
@@ -307,12 +308,12 @@ def translate_message(message):
         else:
 
             try:
-                history[message.from_user.id] = q.get(False)
+                users[message.from_user.id].history = q.get(False)
             except: 
                 pass
 
-            if message.from_user.id in history:
-                text = history[message.from_user.id][-1]
+            if users[message.from_user.id].history:
+                text = users[message.from_user.id].history[-1]
             else:
                 bot.send_message(message.from_user.id, "Please make sure your message is structured like this: /translate <language> <text>")
  
@@ -326,15 +327,11 @@ def translate_message(message):
 def handler(message):
     global users
     users = add_user(message,users)
-    global history
     try:
-        history[message.from_user.id] = q.get(False)
+        users[message.from_user.id].history = q.get(False)
     except: 
         pass
-    if message.from_user.id in history:
-            thread_history = history[message.from_user.id]
-    else:
-        thread_history = []
+    thread_history = users[message.from_user.id].history
         
     p = Process(target = gettext, args = (bot,message,thread_history,users[message.from_user.id].lang,q)).start()
 
@@ -345,7 +342,7 @@ def gettext(bot,message,history,lang,q):
         bot.send_message(message.from_user.id, "One minute...")
 
         en_txt = translator.translate(message.text,dest = 'en') 
-        if len(history)>0:
+        if history:
             prompt ='\n'.join(['Dont include the dialogue in your answer, dont include "AI assistant in answer"','\n'.join(history),"user: " + en_txt.text]) 
         else:
             prompt = en_txt.text 
