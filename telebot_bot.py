@@ -163,7 +163,7 @@ def generate_image_handler(message):
         
         
 def generate_and_send_img(bot,message,prompt,user):
-        image = Stable_diffusion_XL.generate_image(prompt,*user.diffusion_options)
+    image = Stable_diffusion_XL.generate_image(prompt,*user.diffusion_options)
     if image is not None:
         image_bytes = BytesIO()
         image.save(image_bytes, format='JPEG')
@@ -249,10 +249,10 @@ def lang_process(message):
 
 @bot.message_handler(commands = ['diffusion'])
 def diffusion_setup(message):
-    global users
-    users = add_user(message,users)
-    global diffusion_options
-    try:
+        global users
+        users = add_user(message,users)
+#    global diffusion_options
+#    try:
         if len(message.text) == 10:
                 bot.send_message(message.from_user.id,f'''
     Current Options:
@@ -269,7 +269,7 @@ def diffusion_setup(message):
         vae = {users[message.from_user.id].diffusion_options[10]}
                 ''')
         else: 
-            users[message.from_iser.id].diffusion_options = Diffusers_options_parser.parse_diffusion_options(users[message.from_user.id].diffusion_options,message)
+            users[message.from_user.id].diffusion_options = Diffusers_options_parser.parse_diffusion_options(users[message.from_user.id].diffusion_options,message)
             bot.send_message(message.from_user.id, 'Options set')
             bot.send_message(message.from_user.id,f'''
 Current Options:
@@ -290,8 +290,8 @@ Current Options:
 #                pickle.dump(diffusion_options,handle)
             with open('Cache/users.pickle', 'wb') as handle:
                 pickle.dump(users,handle)
-    except:
-        bot.send_message(message.from_user.id, 'Something went wrong while parsing options')
+#    except:
+#        bot.send_message(message.from_user.id, 'Something went wrong while parsing options')
 
 
 @bot.message_handler(commands = ['translate'])
