@@ -149,7 +149,7 @@ def model_prompt(message):
     bot.send_message(message.from_user.id, Diffusers_options_parser.DIFFUSION_MODEL_PROMPT)
 
 
-def delete_diffusion_messages(message,users,bot):
+def delete_messages(message,users,bot):
     for dm in users[message.from_user.id].diffusion_messages:
         bot.delete_message(dm.chat.id,dm.message_id)
     users[message.from_user.id].diffusion_messages=[]
@@ -160,7 +160,7 @@ def delete_diffusion_messages(message,users,bot):
 def generate_image_handler(message):
     global users
     users = add_user(message,users)
-    users = delete_diffusion_messages(message,users,bot)
+    users = delete_messages(message,users,bot)
     try:
         prompt = message.text[6:]
         prompt = translator.translate(prompt,dest = 'en').text
