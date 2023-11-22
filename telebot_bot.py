@@ -29,7 +29,7 @@ bot = telebot.TeleBot(config.BOT_TOKEN)
 #lang = {1 : 'en'}
 global history
 history = {1 : ['test', 'test']}
-diffusion_options= {1 : [False, False,'',8,512,512,100,100,'xl',True,'original']}
+#diffusion_options= {1 : [False, False,'',8,512,512,100,100,'xl',True,'original']}
 
 users = {}
 
@@ -70,9 +70,9 @@ if os.path.isfile('Cache/users.pickle'):
     with open('Cache/users.pickle', 'rb') as handle:
         users = pickle.load(handle)
 
-if os.path.isfile('Cache/diffusion.pickle'):
-    with open('Cache/diffusion.pickle', 'rb') as handle:
-        diffusion_options = pickle.load(handle)
+#if os.path.isfile('Cache/diffusion.pickle'):
+#    with open('Cache/diffusion.pickle', 'rb') as handle:
+#        diffusion_options = pickle.load(handle)
     
 def send_file_via_telegram(bot, chat_id, file_path):
     with open(file_path, 'rb') as file:
@@ -156,17 +156,14 @@ def generate_image_handler(message):
         prompt = message.text[6:]
         prompt = translator.translate(prompt,dest = 'en').text
         bot.send_message(message.from_user.id, "One minute...")
-        p = Process(target = generate_and_send_img, args = (bot,message,prompt)).start()
+        p = Process(target = generate_and_send_img, args = (bot,message,prompt,users[message.from_user.id])).start()
             
     except:
         bot.send_message(message.from_user.id, "Something went wrong while generating :c")
         
         
-def generate_and_send_img(bot,message,prompt):
-    if message.from_user.id in diffusion_options:    
-        image = Stable_diffusion_XL.generate_image(prompt,*diffusion_options[message.from_user.id])
-    else:
-        image = Stable_diffusion_XL.generate_image(prompt,*diffusion_options[1])
+def generate_and_send_img(bot,message,prompt,user):
+        image = Stable_diffusion_XL.generate_image(prompt,*user.diffusion_options)
     if image is not None:
         image_bytes = BytesIO()
         image.save(image_bytes, format='JPEG')
@@ -257,57 +254,42 @@ def diffusion_setup(message):
     global diffusion_options
     try:
         if len(message.text) == 10:
-            if message.from_user.id in diffusion_options:
                 bot.send_message(message.from_user.id,f'''
     Current Options:
-        refine = {diffusion_options[message.from_user.id][0]}
-        upscale = {diffusion_options[message.from_user.id][1]}
-        negative prompt = {diffusion_options[message.from_user.id][2]}
-        guidance scale= {diffusion_options[message.from_user.id][3]}
-        height = {diffusion_options[message.from_user.id][4]}
-        width = {diffusion_options[message.from_user.id][5]}
-        refiner steps = {diffusion_options[message.from_user.id][6]}
-        steps = {diffusion_options[message.from_user.id][7]}
-        model = {diffusion_options[message.from_user.id][8]}
-        lcm = {diffusion_options[message.from_user.id][9]}
-        vae = {diffusion_options[message.from_user.id][10]}
+        refine = {users[message.from_user.id].diffusion_options[0]}
+        upscale = {users[message.from_user.id].diffusion_options[1]}
+        negative prompt = {users[message.from_user.id].diffusion_options[2]}
+        guidance scale= {users[message.from_user.id].diffusion_options[3]}
+        height = {users[message.from_user.id].diffusion_options[4]}
+        width = {users[message.from_user.id].diffusion_options[5]}
+        refiner steps = {users[message.from_user.id].diffusion_options[6]}
+        steps = {users[message.from_user.id].diffusion_options[7]}
+        model = {users[message.from_user.id].diffusion_options[8]}
+        lcm = {users[message.from_user.id].diffusion_options[9]}
+        vae = {users[message.from_user.id].diffusion_options[10]}
                 ''')
-            else:
-                bot.send_message(message.from_user.id,f'''
-    Current Options:
-        refine = {diffusion_options[1][0]}
-        upscale = {diffusion_options[1][1]}
-        negative prompt = {diffusion_options[1][2]}
-        guidance scale= {diffusion_options[1][3]}
-        height = {diffusion_options[1][4]}
-        width = {diffusion_options[1][5]}
-        refiner steps = {diffusion_options[1][6]}
-        steps = {diffusion_options[1][7]}
-        model = {diffusion_options[1][8]}
-        lcm = {diffusion_options[1][9]}
-        vae = {diffusion_options[1][10]}
-                ''')
-
         else: 
-            diffusion_options = Diffusers_options_parser.parse_diffusion_options(diffusion_options,message)
+            users[message.from_iser.id].diffusion_options = Diffusers_options_parser.parse_diffusion_options(users[message.from_user.id].diffusion_options,message)
             bot.send_message(message.from_user.id, 'Options set')
             bot.send_message(message.from_user.id,f'''
 Current Options:
-    refine = {diffusion_options[message.from_user.id][0]}
-    upscale = {diffusion_options[message.from_user.id][1]}
-    negative prompt = {diffusion_options[message.from_user.id][2]}
-    guidance scale= {diffusion_options[message.from_user.id][3]}
-    height = {diffusion_options[message.from_user.id][4]}
-    width = {diffusion_options[message.from_user.id][5]}
-    refiner steps = {diffusion_options[message.from_user.id][6]}
-    steps = {diffusion_options[message.from_user.id][7]}
-    model = {diffusion_options[message.from_user.id][8]}
-    lcm = {diffusion_options[message.from_user.id][9]}
-    vae = {diffusion_options[message.from_user.id][10]}
+    refine = {users[message.from_user.id].diffusion_options[0]}
+    upscale = {users[message.from_user.id].diffusion_options[1]}
+    negative prompt = {users[message.from_user.id].diffusion_options[2]}
+    guidance scale= {users[message.from_user.id].diffusion_options[3]}
+    height = {users[message.from_user.id].diffusion_options[4]}
+    width = {users[message.from_user.id].diffusion_options[5]}
+    refiner steps = {users[message.from_user.id].diffusion_options[6]}
+    steps = {users[message.from_user.id].diffusion_options[7]}
+    model = {users[message.from_user.id].diffusion_options[8]}
+    lcm = {users[message.from_user.id].diffusion_options[9]}
+    vae = {users[message.from_user.id].diffusion_options[10]}
             ''')
 
-            with open('Cache/diffusion.pickle', 'wb') as handle:
-                pickle.dump(diffusion_options,handle)
+#            with open('Cache/diffusion.pickle', 'wb') as handle:
+#                pickle.dump(diffusion_options,handle)
+            with open('Cache/users.pickle', 'wb') as handle:
+                pickle.dump(users,handle)
     except:
         bot.send_message(message.from_user.id, 'Something went wrong while parsing options')
 

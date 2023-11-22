@@ -71,12 +71,8 @@ def match_text(line,command):
 def match_word(line,command):
     return re.findall(f'(?<={command} )[a-z0-9]*',line)
 
-def parse_diffusion_options(diffusion_options,message):
+def parse_diffusion_options(current_options,message):
     line = message.text
-    if message.from_user.id in diffusion_options:
-        current_options = diffusion_options[message.from_user.id]
-    else:
-        current_options = diffusion_options[1]
 
     refine = match_True_False(line,'refine')
     upscale = match_True_False(line,'upscale')
@@ -103,8 +99,7 @@ def parse_diffusion_options(diffusion_options,message):
             lcm[0] == 'True'  if lcm else current_options[9],
             vae[0] if vae else current_options[10],
             ]
-    diffusion_options[message.from_user.id] = options
-    return diffusion_options
+    return options
 
 
 
