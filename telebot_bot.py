@@ -54,7 +54,7 @@ negative {self.diffusion_options[2]};
 guidance {self.diffusion_options[3]};
 height {self.diffusion_options[4]};
 width {self.diffusion_options[5]};
-refiner_steps = {self.diffusion_options[6]};
+refiner_steps {self.diffusion_options[6]};
 steps {self.diffusion_options[7]};
 model {self.diffusion_options[8]};
 lcm {self.diffusion_options[9]};
