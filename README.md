@@ -3,47 +3,61 @@
 Chat GPT telegram bot powered by gpt4free and telebot
 
 Features:
-+ Bot tryes to avoid detection by using proxi_randomizer library.
-+ Bot uses googletrans library to work in multiple languages
-+ Bot formats answers to show code in MarkdownV2 format when possible
-+ Bot remembers ```history_max_length``` previous questions and answers, so could be asked to elaborate on answer. History can be cleared with ```/new``` command in telegram
-+ Bot can translate message using googletrans to specified language using ```/translate <language> <text>``` command in telegram
-+ Bot can generate images(```/draw <image description>```) running StableDiffusionXL localy (needs NVIDIA GPU)
++ Chat GPT conversations powered by g4f library
++ Image generations using various Stable Diffusion 1.5/XL models
++ Math module powered by WolframAlpha API
 
 Downsides:
 + Parallelism is acheived through multiprocessing library, had no luck with asyncio
-+ Bot is highly dependant on providers
-
++ Math module is dependant on WolframAlpha
++ Bots LLM capability is highly dependant on providers
 
 ## Setup
  1) ```git clone https://github.com/DeniskaRediska21/G4f_telegram_bot.git```
+ 2) ```sudo apt install python3.10 python3.10-venv xargs```
+ 2) To use Image generation capabilities, setup cuda and pytorch on your PC, untill `torch.cuda.is_available` returns `True`
  2) ```cd G4f_telegram_bot```
- 3) ```source g4f_telebot/bin/activate```
+ 3) ```python3 -m venv bot```
+ 3) ```source bot/bin/activate```
  4) ```cat requirements.txt | xargs -n 1 pip install```
  5) Create config.py file
- 6) Paste to config.py:  ```BOT_TOKEN = "<Token provided by @BotFather>"```
+ 6) Paste to config.py:  ```BOT_TOKEN = "<Token provided by @BotFather>"
+ WOLFRAM_ID = "<App ID provided by WolframAlpha>"
+ HF_TOKEN = "<Huggingface token provided by Huggingface>"```
+ 7) **To run bot in terminal:** ```sourse bot/bin/activate
+ python3 telebot_bot.py```
 
-## Phone setup
+## Chatting with ChatGPT
 
-To host the bot localy on Android phone follow this steps:
+To get ChatGPT reply, write anything to bot, without any commands.
 
- 1) [Get the bot token from @BotFather in telegram app](https://t.me/botfather)
- 2) [Install Termux](https://f-droid.org/packages/com.termux/)
- 3) [Install AnLinux](https://f-droid.org/packages/exa.lnx.a/)
- 4) Install Ubuntu dashboard following instructions in AnLinux
+## Image Generation
 
- In termux:
+To generate image with StableDiffusion write your image prompt after `/draw` command.
+Ex.:![Image generation](Media/draw_showcase)
 
- 5) ```./start-ubuntu.sh```
- 6) ```apt update && apt upgrade```
- 7) ```apt install python3 pip kakoune git```
- 8) ```git clone https://github.com/DeniskaRediska21/G4f_telegram_bot.git```
- 9) ```cd G4f_telegram_bot```
- 10) ```source g4f_telebot/bin/activate```
- 11) ```cat requirements.txt | xargs -n 1 pip install```
- 12) ```kak config.py```
- 13) Paste to config.py:  ```BOT_TOKEN = "Token provided by @BotFather"```
- 14) ```python3 telebot_bot.py```
+Other commands in Image generation:
++ `/models` to reveal the list of all supported models
++ `/diffusers` to reveal current Image generation settings
++ `/diffusers <setting name> <setting>` to change settings
+
+List of Image generation settings:
++ refine True/False - use the StableDiffusionXL refiner on the generated image
++ upscale True/False - use the ESRGAN upscaler on the generated image
++ negative <text> - negative prompt used for generation
++ guidance <float> - guidance scale used fprgeneration, defines how much creativity the model will use
++ height <int> - height of the generated image
++ width <int> - wifth of the generated image
++ refiner_steps <int> - StableDiffusionXL refiner steps
++ steps <int> - StableDiffussion steps
++ model <1word> - model that will be used for generation, model namescan be derrived by running `/models` command
++ lcm True/False - use Latent Consistency Model for generation **greatly reduces genration times, while slightly reducing quality**
++ vae <1word> - VAE that will be used while generating **original** to run VAE provided by the diffusion model creator, **mse** - the stable_diffusion_api MSE VAE,
+ **ema** stable diffusion api EMA VAE, **none** standart Diffusers library VAE 
+
+## Math module
+
+`/math <math expression>` - to get a responce from WolframAlpha, only text responces are supported ATM.
 
 ## Showcase of formatting
 
