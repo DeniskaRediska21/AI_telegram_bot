@@ -180,8 +180,8 @@ def generate_image_handler(message):
     try:
         prompt = message.text[6:]
         prompt = translator.translate(prompt,dest = 'en').text
-        bot.send_message(message.from_user.id, "One minute...")
-        p = Process(target = generate_and_send_img, args = (bot,message,prompt,users[message.from_user.id])).start()
+        bot_message = bot.send_message(message.from_user.id, "One minute...")
+        p = Process(target = generate_and_send_img, args = (bot,message,prompt,users[message.from_user.id],bot_message)).start()
             
         with open('Cache/users.pickle', 'wb') as handle:
             pickle.dump(users,handle)
@@ -189,7 +189,7 @@ def generate_image_handler(message):
         bot.send_message(message.from_user.id, "Something went wrong while generating :c")
         
         
-def generate_and_send_img(bot,message,prompt,user):
+def generate_and_send_img(bot,message,prompt,user,bot_message):
     image = Stable_diffusion_XL.generate_image(prompt,*user.diffusion_options)
     if image is not None:
         image_bytes = BytesIO()
@@ -198,6 +198,7 @@ def generate_and_send_img(bot,message,prompt,user):
         caption = ('\n').join(['Prompt:',message.text,'\nSettings:',user.diffusion_settings_message()])
         bot.send_photo(message.from_user.id, photo=image_bytes,caption = caption)
         bot.delete_message(message.chat.id,message.message_id)
+        bot.delete_message(bot_message.chat.id,bot_message.message_id)
     else:
         bot.send_message(message.from_user.id,"Image generation is not working at the moment.")
 
