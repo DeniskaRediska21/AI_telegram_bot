@@ -279,8 +279,8 @@ def lang_process(message):
 
 @bot.message_handler(commands = ['diffusion'])
 def diffusion_setup(message):
-        global users
-        users = add_user(message,users)
+    global users
+    users = add_user(message,users)
 #    global diffusion_options
     try:
         if len(message.text) != 10:
