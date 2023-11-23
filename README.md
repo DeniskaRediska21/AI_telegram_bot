@@ -42,17 +42,17 @@ Other commands in Image generation:
 + `/diffusers <setting name> <setting>` to change settings
 
 List of Image generation settings:
-+ refine True/False - use the StableDiffusionXL refiner on the generated image
-+ upscale True/False - use the ESRGAN upscaler on the generated image
-+ negative <text> - negative prompt used for generation
-+ guidance <float> - guidance scale used fprgeneration, defines how much creativity the model will use
-+ height <int> - height of the generated image
-+ width <int> - wifth of the generated image
-+ refiner_steps <int> - StableDiffusionXL refiner steps
-+ steps <int> - StableDiffussion steps
-+ model <1word> - model that will be used for generation, model namescan be derrived by running `/models` command
-+ lcm True/False - use Latent Consistency Model for generation **greatly reduces genration times, while slightly reducing quality**
-+ vae <1word> - VAE that will be used while generating **original** to run VAE provided by the diffusion model creator, **mse** - the stable_diffusion_api MSE VAE,
++ refine *True/False* - use the StableDiffusionXL refiner on the generated image
++ upscale *True/False* - use the ESRGAN upscaler on the generated image
++ negative *text* - negative prompt used for generation
++ guidance *float* - guidance scale used fprgeneration, defines how much creativity the model will use
++ height *int* - height of the generated image
++ width *int* - wifth of the generated image
++ refiner_steps *int* - StableDiffusionXL refiner steps
++ steps *int* - StableDiffussion steps
++ model *1word* - model that will be used for generation, model namescan be derrived by running `/models` command
++ lcm *True/False* - use Latent Consistency Model for generation **greatly reduces genration times, while slightly reducing quality**
++ vae *1word* - VAE that will be used while generating **original** to run VAE provided by the diffusion model creator, **mse** - the stable_diffusion_api MSE VAE,
  **ema** stable diffusion api EMA VAE, **none** standart Diffusers library VAE 
 
 ## Math module
