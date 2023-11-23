@@ -195,8 +195,9 @@ def generate_and_send_img(bot,message,prompt,user):
         image_bytes = BytesIO()
         image.save(image_bytes, format='JPEG')
         image_bytes.seek(0)
-        caption = ('\n').join(['prompt:',message.text])
-        bot.send_photo(message.from_user.id, photo=image_bytes)
+        caption = ('\n').join(['Prompt:',message.text,'\nSettings:',user.diffusion_settings_message()])
+        bot.send_photo(message.from_user.id, photo=image_bytes,caption = caption)
+        bot.delete_message(message.chat.id,message.message_id)
     else:
         bot.send_message(message.from_user.id,"Image generation is not working at the moment.")
 
@@ -281,30 +282,15 @@ def diffusion_setup(message):
         users = add_user(message,users)
 #    global diffusion_options
 #    try:
-        if len(message.text) == 10:
-            sent_message = bot.send_message(message.from_user.id,users[message.from_user.id].diffusion_settings_message())
-        else:
+        if len(message.text) != 10:
             users[message.from_user.id].diffusion_options = Diffusers_options_parser.parse_diffusion_options(users[message.from_user.id].diffusion_options,message)
-            sent_message =  bot.send_message(message.from_user.id,f'''
-Options Set.
-Current Options:
-    refine = {users[message.from_user.id].diffusion_options[0]}
-    upscale = {users[message.from_user.id].diffusion_options[1]}
-    negative prompt = {users[message.from_user.id].diffusion_options[2]}
-    guidance scale= {users[message.from_user.id].diffusion_options[3]}
-    height = {users[message.from_user.id].diffusion_options[4]}
-    width = {users[message.from_user.id].diffusion_options[5]}
-    refiner steps = {users[message.from_user.id].diffusion_options[6]}
-    steps = {users[message.from_user.id].diffusion_options[7]}
-    model = {users[message.from_user.id].diffusion_options[8]}
-    lcm = {users[message.from_user.id].diffusion_options[9]}
-    vae = {users[message.from_user.id].diffusion_options[10]}
-            ''')
+            with open('Cache/users.pickle', 'wb') as handle:
+                pickle.dump(users,handle)
+
+        sent_message = bot.send_message(message.from_user.id,users[message.from_user.id].diffusion_settings_message())
             
 #            with open('Cache/diffusion.pickle', 'wb') as handle:
 #                pickle.dump(diffusion_options,handle)
-            with open('Cache/users.pickle', 'wb') as handle:
-                pickle.dump(users,handle)
         if len(users[message.from_user.id].diffusion_messages)<10:
             users[message.from_user.id].diffusion_messages.append(message)
             users[message.from_user.id].diffusion_messages.append(sent_message)
