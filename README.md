@@ -39,7 +39,7 @@ Chatting commands:
 + `/file <filename> <text>` - to write text to file and receive it via telegram
 ## Image Generation
 
-Use `/draw your prompt` to generate images using StableDiffusion
+Use `/draw <your prompt>` to generate images using StableDiffusion
 
 Other commands in Image generation:
 + `/models` to reveal the list of all supported models
