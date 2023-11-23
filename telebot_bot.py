@@ -46,8 +46,7 @@ class User:
         self.diffusion_options = [False, False,'',8,512,512,100,100,'xl',True,'original']
         self.diffusion_messages = []
     def diffusion_settings_message(self):
-        text = f'''
-/diffusion
+        text = f'''/diffusion
 refine {self.diffusion_options[0]};
 upscale {self.diffusion_options[1]};
 negative {self.diffusion_options[2]};
