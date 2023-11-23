@@ -29,8 +29,14 @@ Downsides:
 
 ## Chatting with ChatGPT
 
-To get ChatGPT reply, write anything to bot, without any commands.
+To get ChatGPT reply, write anything to bot, without any commands. **You can write in any language.**
 
+Chatting commands:
++ `/new` - to start a new dialogue
++ `/lang <language in form of 2 letters *en*>` - to bot set responce language *(MARKDOWN code formatting workks only when lang == en)*
++ `/translate <lang in form of 2 letters> <text>` - to translate text to specified language
++ `/translate <lang in form of 2 letters>` - to translate last bot's reply to specified language
++ `/file <filename> <text>` - to write text to file and receive it via telegram
 ## Image Generation
 
 To generate image with StableDiffusion write your image prompt after `/draw` command.
