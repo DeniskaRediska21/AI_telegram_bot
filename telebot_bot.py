@@ -388,10 +388,10 @@ def gettext(bot,message,history,lang,q):
 
         
 def run_bot():
-#    try:
+    try:
         bot.polling(none_stop=True,interval = 0)
-#    except:
-#        print('Error while polling')
+    except:
+        print('Error while polling')
 while True:
     run_bot()
     time.sleep(5)
