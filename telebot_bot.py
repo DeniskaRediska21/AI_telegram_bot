@@ -45,6 +45,22 @@ class User:
         self.lang = 'en'
         self.diffusion_options = [False, False,'',8,512,512,100,100,'xl',True,'original']
         self.diffusion_messages = []
+    def diffusion_settings_message(self):
+        text = f'''
+Current Options:
+    refine = {self.diffusion_options[0]}
+    upscale = {self.diffusion_options[1]}
+    negative prompt = {self.diffusion_options[2]}
+    guidance scale= {self.diffusion_options[3]}
+    height = {self.diffusion_options[4]}
+    width = {self.diffusion_options[5]}
+    refiner steps = {self.diffusion_options[6]}
+    steps = {self.diffusion_options[7]}
+    model = {self.diffusion_options[8]}
+    lcm = {self.diffusion_options[9]}
+    vae = {self.diffusion_options[10]}
+'''
+        return text
 
 def add_user(message,users):
     if message.from_user.id not in users:
@@ -179,6 +195,7 @@ def generate_and_send_img(bot,message,prompt,user):
         image_bytes = BytesIO()
         image.save(image_bytes, format='JPEG')
         image_bytes.seek(0)
+        caption = ('\n').join(['prompt:',message.text])
         bot.send_photo(message.from_user.id, photo=image_bytes)
     else:
         bot.send_message(message.from_user.id,"Image generation is not working at the moment.")
@@ -265,21 +282,8 @@ def diffusion_setup(message):
 #    global diffusion_options
 #    try:
         if len(message.text) == 10:
-            sent_message = bot.send_message(message.from_user.id,f'''
-Current Options:
-    refine = {users[message.from_user.id].diffusion_options[0]}
-    upscale = {users[message.from_user.id].diffusion_options[1]}
-    negative prompt = {users[message.from_user.id].diffusion_options[2]}
-    guidance scale= {users[message.from_user.id].diffusion_options[3]}
-    height = {users[message.from_user.id].diffusion_options[4]}
-    width = {users[message.from_user.id].diffusion_options[5]}
-    refiner steps = {users[message.from_user.id].diffusion_options[6]}
-    steps = {users[message.from_user.id].diffusion_options[7]}
-    model = {users[message.from_user.id].diffusion_options[8]}
-    lcm = {users[message.from_user.id].diffusion_options[9]}
-    vae = {users[message.from_user.id].diffusion_options[10]}
-                ''')
-        else: 
+            sent_message = bot.send_message(message.from_user.id,users[message.from_user.id].diffusion_settings_message())
+        else:
             users[message.from_user.id].diffusion_options = Diffusers_options_parser.parse_diffusion_options(users[message.from_user.id].diffusion_options,message)
             sent_message =  bot.send_message(message.from_user.id,f'''
 Options Set.
