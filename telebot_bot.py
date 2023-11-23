@@ -282,7 +282,7 @@ def diffusion_setup(message):
         global users
         users = add_user(message,users)
 #    global diffusion_options
-#    try:
+    try:
         if len(message.text) != 10:
             users[message.from_user.id].diffusion_options = Diffusers_options_parser.parse_diffusion_options(users[message.from_user.id].diffusion_options,message)
             with open('Cache/users.pickle', 'wb') as handle:
@@ -292,13 +292,12 @@ def diffusion_setup(message):
             
 #            with open('Cache/diffusion.pickle', 'wb') as handle:
 #                pickle.dump(diffusion_options,handle)
-        if len(users[message.from_user.id].diffusion_messages)<10:
-            users[message.from_user.id].diffusion_messages.append(message)
-            users[message.from_user.id].diffusion_messages.append(sent_message)
-        else:
-            pass
-#    except:
-#        bot.send_message(message.from_user.id, 'Something went wrong while parsing options')
+    except:
+        sent_message = bot.send_message(message.from_user.id, 'Something went wrong while parsing options')
+
+    if len(users[message.from_user.id].diffusion_messages)<10:
+        users[message.from_user.id].diffusion_messages.append(message)
+        users[message.from_user.id].diffusion_messages.append(sent_message)
 
 
 @bot.message_handler(commands = ['translate'])
