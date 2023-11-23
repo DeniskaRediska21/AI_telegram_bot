@@ -47,18 +47,18 @@ class User:
         self.diffusion_messages = []
     def diffusion_settings_message(self):
         text = f'''
-Current Options:
-    refine = {self.diffusion_options[0]}
-    upscale = {self.diffusion_options[1]}
-    negative prompt = {self.diffusion_options[2]}
-    guidance scale= {self.diffusion_options[3]}
-    height = {self.diffusion_options[4]}
-    width = {self.diffusion_options[5]}
-    refiner steps = {self.diffusion_options[6]}
-    steps = {self.diffusion_options[7]}
-    model = {self.diffusion_options[8]}
-    lcm = {self.diffusion_options[9]}
-    vae = {self.diffusion_options[10]}
+/diffusion
+refine {self.diffusion_options[0]};
+upscale {self.diffusion_options[1]};
+negative {self.diffusion_options[2]};
+guidance {self.diffusion_options[3]};
+height {self.diffusion_options[4]};
+width {self.diffusion_options[5]};
+refiner_steps = {self.diffusion_options[6]};
+steps {self.diffusion_options[7]};
+model {self.diffusion_options[8]};
+lcm {self.diffusion_options[9]};
+vae {self.diffusion_options[10]};
 '''
         return text
 
@@ -195,7 +195,7 @@ def generate_and_send_img(bot,message,prompt,user,bot_message):
         image_bytes = BytesIO()
         image.save(image_bytes, format='JPEG')
         image_bytes.seek(0)
-        caption = ('\n').join([formatting.format_for_markdown('Prompt:'),'```',message.text,'```',formatting.format_for_markdown(user.diffusion_settings_message())])
+        caption = ('\n').join([formatting.format_for_markdown('Prompt:'),'```',message.text,'```','```',user.diffusion_settings_message(),'```'])
         bot.send_photo(message.from_user.id, photo=image_bytes,caption = caption,parse_mode = 'MarkdownV2')
         
         bot.delete_message(message.chat.id,message.message_id)
