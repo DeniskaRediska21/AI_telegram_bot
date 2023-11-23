@@ -161,8 +161,9 @@ def clear_history(message):
 def model_prompt(message):
     global users
     users = add_user(message,users)
-    bot.send_message(message.from_user.id, Diffusers_options_parser.DIFFUSION_MODEL_PROMPT)
+    bot_message = bot.send_message(message.from_user.id, Diffusers_options_parser.DIFFUSION_MODEL_PROMPT)
     users[message.from_user.id].diffusion_messages.append(message)
+    users[message.from_user.id].diffusion_messages.append(bot_message)
 
 
 def delete_messages(message,users,bot):
