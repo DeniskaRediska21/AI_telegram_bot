@@ -195,7 +195,7 @@ def generate_and_send_img(bot,message,prompt,user,bot_message):
         image_bytes = BytesIO()
         image.save(image_bytes, format='JPEG')
         image_bytes.seek(0)
-        caption = ('\n').join(['Prompt:','’’’',message.text,'’’’',user.diffusion_settings_message()])
+        caption = ('\n').join([formatting.format_for_markdown('Prompt:'),'’’’',message.text,'’’’',formatting.format_for_markdown(user.diffusion_settings_message())])
         bot.send_photo(message.from_user.id, photo=image_bytes,caption = caption,parse_mode = 'MarkdownV2')
         bot.delete_message(message.chat.id,message.message_id)
         bot.delete_message(bot_message.chat.id,bot_message.message_id)
