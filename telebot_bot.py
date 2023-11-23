@@ -344,7 +344,7 @@ def handler(message):
 def gettext(bot,message,history,lang,q):
     try:
         print(f'Started processing {message.from_user.id}')
-        bot.send_message(message.from_user.id, "One minute...")
+        bot_message = bot.send_message(message.from_user.id, "One minute...")
 
         en_txt = translator.translate(message.text,dest = 'en') 
         if history:
@@ -378,11 +378,11 @@ def gettext(bot,message,history,lang,q):
         with open(f"Logs/{message.from_user.id}.txt", "a") as log_file:
             log_file.write(f'{message.from_user.first_name} {message.from_user.last_name} {message.from_user.id}: {message.text}\nbot: {ans_ru}\n')
             
-        
         print(f'Processed {message.from_user.id}, provider: {provider}')
 
     except:
         bot.send_message(message.from_user.id, "Что-то пошло не так :( Повторите запрос")
+    bot.delete_message(bot_message.chat.id,bot_message.message_id)        
 
         
 def run_bot():
