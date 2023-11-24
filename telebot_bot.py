@@ -19,7 +19,7 @@ from PIL import Image
 from io import BytesIO
 import pickle
 import Diffusers_options_parser
-
+import torch
 
 translator = Translator()
 
