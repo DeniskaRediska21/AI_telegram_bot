@@ -384,7 +384,7 @@ def gettext(bot,message,history,lang,q):
 
 #    except:
 #        bot.send_message(message.from_user.id, "Что-то пошло не так :( Повторите запрос")
-    bot.delete_message(bot_message.chat.id,bot_message.message_id)        
+        bot.delete_message(bot_message.chat.id,bot_message.message_id)        
 
         
 def run_bot():
