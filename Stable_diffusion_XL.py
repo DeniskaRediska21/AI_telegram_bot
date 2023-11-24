@@ -75,6 +75,7 @@ def generate_image(prompt,do_refine = False, do_upscale = False,negative_prompt 
         else:
             model_id = "stabilityai/stable-diffusion-xl-base-1.0"
             adapter_id = "latent-consistency/lcm-lora-sdxl"
+            VAE = 'none'
 
         pipe = DiffusionPipeline.from_pretrained(
                 model_id,
