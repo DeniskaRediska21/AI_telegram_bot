@@ -24,7 +24,7 @@ import Diffusers_options_parser
 translator = Translator()
 
 bot = telebot.TeleBot(config.BOT_TOKEN)
-
+generator = torch.Generator()
 
 #lang = {1 : 'en'}
 #global history
@@ -192,7 +192,7 @@ def generate_image_handler(message):
         
         
 def generate_and_send_img(bot,message,prompt,user,bot_message):
-    image,seed = Stable_diffusion_XL.generate_image(prompt,*user.diffusion_options)
+    image,seed = Stable_diffusion_XL.generate_image(prompt,*user.diffusion_options,generator)
     if image is not None:
         image_bytes = BytesIO()
         image.save(image_bytes, format='JPEG')
