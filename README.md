@@ -59,7 +59,7 @@ List of Image generation settings:
 + lcm *True/False* - use Latent Consistency Model for generation **greatly reduces genration times, while slightly reducing quality**
 + vae *1word* - VAE that will be used while generating **original** to run VAE provided by the diffusion model creator, **mse** - the stable_diffusion_api MSE VAE,
  **ema** stable diffusion api EMA VAE, **none** standart Diffusers library VAE
-+ seed *int* - if you want to reproduce generation with some different settings, you could generate on manual seed 
++ seed *int* - if you want to reproduce generation with some different settings, you could generate on manual seed, **set to 0 to get random seeds** 
 
 ***All the fields in Image Generation reply can be clicked to copy***
 ## Math module
