@@ -175,10 +175,10 @@ def delete_messages(message,users,bot):
 
 @bot.message_handler(commands = ['draw'])
 def generate_image_handler(message):
-    global users
-    users = add_user(message,users)
-    users = delete_messages(message,users,bot)
-    try:
+        global users
+        users = add_user(message,users)
+        users = delete_messages(message,users,bot)
+#    try:
         prompt = message.text[6:]
         prompt = translator.translate(prompt,dest = 'en').text
         bot_message = bot.send_message(message.from_user.id, "One minute...")
@@ -186,8 +186,8 @@ def generate_image_handler(message):
             
         with open('Cache/users.pickle', 'wb') as handle:
             pickle.dump(users,handle)
-    except:
-        bot.send_message(message.from_user.id, "Something went wrong while generating :c")
+#    except:
+#        bot.send_message(message.from_user.id, "Something went wrong while generating :c")
         
         
 def generate_and_send_img(bot,message,prompt,user,bot_message):
