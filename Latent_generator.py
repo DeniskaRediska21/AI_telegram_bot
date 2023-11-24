@@ -1,6 +1,4 @@
 import torch
-import numpy as np
-import random
 
 def generate_latents(pipe, height=512, width=512, seed = 0,generator=torch.Generator()):
     latents = None
@@ -8,8 +6,6 @@ def generate_latents(pipe, height=512, width=512, seed = 0,generator=torch.Gener
     if seed == 0:
         seed = generator.seed()
     torch.cuda.manual_seed(seed)
-    np.random.seed(seed)
-    random.seed(seed)
     torch.backends.cudnn.deterministic=True
         
     generator = generator.manual_seed(seed)
