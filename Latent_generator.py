@@ -1,5 +1,5 @@
 import torch
-import np
+import numpy as np
 import random
 
 def generate_latents(pipe, height=512, width=512, seed = 0,generator=torch.Generator()):
