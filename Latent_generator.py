@@ -1,6 +1,6 @@
 import torch
 
-def generate_latents(pipe, height=512, width=512, seed = 0,generator):
+def generate_latents(pipe, height=512, width=512, seed = 0,generator=torch.Generator()):
     latents = None
     #Get a new random seed, store it and use it as the generator state
     if seed == 0:
