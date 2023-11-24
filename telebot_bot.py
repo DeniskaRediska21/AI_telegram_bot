@@ -117,8 +117,8 @@ def gpt_answer(prompt):
     g4f.Provider.GPTalk, # Worked with proxi
     g4f.Provider.Liaobots,# Worked with proxi
     g4f.Provider.Phind,# Worked with proxi
-    #g4f.Provider.ChatBase,# Worked with proxi
-    #g4f.Provider.ChatgptAi,# Worked with proxi
+    g4f.Provider.ChatBase,# Worked with proxi
+    g4f.Provider.ChatgptAi,# Worked with proxi
     #g4f.Provider.Llama2,# Worked with proxi
     ]
     random.shuffle(providers)
@@ -175,10 +175,10 @@ def delete_messages(message,users,bot):
 
 @bot.message_handler(commands = ['draw'])
 def generate_image_handler(message):
-        global users
-        users = add_user(message,users)
-        users = delete_messages(message,users,bot)
-#    try:
+    global users
+    users = add_user(message,users)
+    users = delete_messages(message,users,bot)
+    try:
         prompt = message.text[6:]
         prompt = translator.translate(prompt,dest = 'en').text
         bot_message = bot.send_message(message.from_user.id, "One minute...")
@@ -186,8 +186,8 @@ def generate_image_handler(message):
             
         with open('Cache/users.pickle', 'wb') as handle:
             pickle.dump(users,handle)
-#    except:
-#        bot.send_message(message.from_user.id, "Something went wrong while generating :c")
+    except:
+        bot.send_message(message.from_user.id, "Something went wrong while generating :c")
         
         
 def generate_and_send_img(bot,message,prompt,user,bot_message):
@@ -344,7 +344,7 @@ def handler(message):
 
 
 def gettext(bot,message,history,lang,q):
-#    try:
+    try:
         print(f'Started processing {message.from_user.id}')
         bot_message = bot.send_message(message.from_user.id, "One minute...")
 
@@ -382,16 +382,16 @@ def gettext(bot,message,history,lang,q):
             
         print(f'Processed {message.from_user.id}, provider: {provider}')
 
-#    except:
-#        bot.send_message(message.from_user.id, "Что-то пошло не так :( Повторите запрос")
-        bot.delete_message(bot_message.chat.id,bot_message.message_id)        
+    except:
+        bot.send_message(message.from_user.id, "Что-то пошло не так :( Повторите запрос")
+    bot.delete_message(bot_message.chat.id,bot_message.message_id)        
 
         
 def run_bot():
-#    try:
+    try:
         bot.polling(none_stop=True,interval = 0)
-#    except:
-#        print('Error while polling')
+    except:
+        print('Error while polling')
 while True:
     run_bot()
     time.sleep(5)
