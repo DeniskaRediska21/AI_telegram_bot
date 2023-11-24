@@ -9,6 +9,7 @@ def generate_latents(pipe, height=512, width=512):
     image_latents = torch.randn(
     (1, pipe.unet.in_channels, height // 8, width // 8),
     generator = generator,
+    torch_dtype = torch.float16,
     )
     return image_latents, seed
   
