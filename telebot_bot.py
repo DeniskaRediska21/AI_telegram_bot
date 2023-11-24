@@ -43,7 +43,7 @@ class User:
         self.id = message.from_user.id
         self.history = []
         self.lang = 'en'
-        self.diffusion_options = [False, False,'',8,512,512,100,100,'xl',True,'original']
+        self.diffusion_options = [False, False,'',8,512,512,100,100,'xl',True,'original',0]
         self.diffusion_messages = []
     def diffusion_settings_message(self):
         text = f'''/diffusion
@@ -58,6 +58,7 @@ steps {self.diffusion_options[7]};
 model {self.diffusion_options[8]};
 lcm {self.diffusion_options[9]};
 vae {self.diffusion_options[10]};
+seed {self.diffusion_options[11]};
 '''
         return text
 
@@ -196,7 +197,7 @@ def generate_and_send_img(bot,message,prompt,user,bot_message):
         image_bytes = BytesIO()
         image.save(image_bytes, format='JPEG')
         image_bytes.seek(0)
-        caption = ('\n').join([formatting.format_for_markdown('Prompt:'),'```',message.text,'```','Settings\:','```',user.diffusion_settings_message(),'```',formatting.format_for_markdown(f'Seed: {seed}')])
+        caption = ('\n').join([formatting.format_for_markdown('Prompt:'),'```',message.text,'```','Settings\:','```',user.diffusion_settings_message(),'```',formatting.format_for_markdown(f'Seed: \n`/diffusion seed {seed}`')])
         bot.send_photo(message.from_user.id, photo=image_bytes,caption = caption,parse_mode = 'MarkdownV2')
         
         bot.delete_message(message.chat.id,message.message_id)

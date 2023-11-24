@@ -14,7 +14,7 @@ def make_divisible_by_eight(number):
     return number
 
     
-def generate_image(prompt,do_refine = False, do_upscale = False,negative_prompt = '',guidance_scale = 8,height=768,width=1024,n_refiner_steps = 100, n_steps = 100,type = 'xl',lcm = True,VAE = 'original'):
+def generate_image(prompt,do_refine = False, do_upscale = False,negative_prompt = '',guidance_scale = 8,height=768,width=1024,n_refiner_steps = 100, n_steps = 100,type = 'xl',lcm = True,VAE = 'original',seed = 0):
     width = make_divisible_by_eight(width)
     height = make_divisible_by_eight(height)
     
@@ -97,7 +97,7 @@ def generate_image(prompt,do_refine = False, do_upscale = False,negative_prompt 
             elif VAE == 'none':
                 vae = pipe.vae
         pipe.vae = vae
-        latents,seed = Latent_generator.generate_latents(pipe,height,width)
+        latents,seed = Latent_generator.generate_latents(pipe,height,width,seed)
         pipe.enable_model_cpu_offload()
         #pipe.unet = torch.compile(pipe.unet, mode = 'max-autotune',fullgraph=True)
 

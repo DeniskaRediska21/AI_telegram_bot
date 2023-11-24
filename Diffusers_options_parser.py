@@ -85,6 +85,7 @@ def parse_diffusion_options(current_options,message):
     model = match_word(line,'model')
     vae = match_word(line,'vae')
     lcm = match_True_False(line,'lcm')
+    seed = match_word(line,'seed')
 
     options = [
             refine[0] == 'True' if refine else current_options[0],
@@ -98,6 +99,7 @@ def parse_diffusion_options(current_options,message):
             model[0] if model else current_options[8],
             lcm[0] == 'True'  if lcm else current_options[9],
             vae[0] if vae else current_options[10],
+            int(seed[0]) if seed else current_options[11],
             ]
     return options
 
