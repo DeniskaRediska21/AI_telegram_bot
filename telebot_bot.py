@@ -344,7 +344,7 @@ def handler(message):
 
 
 def gettext(bot,message,history,lang,q):
-    try:
+#    try:
         print(f'Started processing {message.from_user.id}')
         bot_message = bot.send_message(message.from_user.id, "One minute...")
 
@@ -382,16 +382,16 @@ def gettext(bot,message,history,lang,q):
             
         print(f'Processed {message.from_user.id}, provider: {provider}')
 
-    except:
-        bot.send_message(message.from_user.id, "Что-то пошло не так :( Повторите запрос")
+#    except:
+#        bot.send_message(message.from_user.id, "Что-то пошло не так :( Повторите запрос")
     bot.delete_message(bot_message.chat.id,bot_message.message_id)        
 
         
 def run_bot():
-    try:
+#    try:
         bot.polling(none_stop=True,interval = 0)
-    except:
-        print('Error while polling')
+#    except:
+#        print('Error while polling')
 while True:
     run_bot()
     time.sleep(5)
