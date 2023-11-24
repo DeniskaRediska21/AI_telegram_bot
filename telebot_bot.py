@@ -191,12 +191,12 @@ def generate_image_handler(message):
         
         
 def generate_and_send_img(bot,message,prompt,user,bot_message):
-    image = Stable_diffusion_XL.generate_image(prompt,*user.diffusion_options)
+    image,seed = Stable_diffusion_XL.generate_image(prompt,*user.diffusion_options)
     if image is not None:
         image_bytes = BytesIO()
         image.save(image_bytes, format='JPEG')
         image_bytes.seek(0)
-        caption = ('\n').join([formatting.format_for_markdown('Prompt:'),'```',message.text,'```','Settings\:','```',user.diffusion_settings_message(),'```'])
+        caption = ('\n').join([formatting.format_for_markdown('Prompt:'),'```',message.text,'```','Settings\:','```',user.diffusion_settings_message(),'```',formatting.format_for_markdown(f'Seed: {seed}')])
         bot.send_photo(message.from_user.id, photo=image_bytes,caption = caption,parse_mode = 'MarkdownV2')
         
         bot.delete_message(message.chat.id,message.message_id)

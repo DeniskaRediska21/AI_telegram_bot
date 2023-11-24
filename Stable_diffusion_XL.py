@@ -19,6 +19,7 @@ def generate_image(prompt,do_refine = False, do_upscale = False,negative_prompt 
     height = make_divisible_by_eight(height)
     
     if torch.cuda.is_available():
+        import Latent_generator
         from diffusers import StableDiffusionXLImg2ImgPipeline
         import os.path
         from diffusers import StableDiffusionXLPipeline, LCMScheduler, AutoPipelineForText2Image
@@ -96,7 +97,7 @@ def generate_image(prompt,do_refine = False, do_upscale = False,negative_prompt 
             elif VAE == 'none':
                 vae = pipe.vae
         pipe.vae = vae
-
+        latents,seed = Latent_generator.generate_latents(pipe,height,width)
         pipe.enable_model_cpu_offload()
         #pipe.unet = torch.compile(pipe.unet, mode = 'max-autotune',fullgraph=True)
 
@@ -115,6 +116,7 @@ def generate_image(prompt,do_refine = False, do_upscale = False,negative_prompt 
                 width = width,
                 num_inference_steps=n_steps,
                 guidance_scale = guidance_scale,
+                latents = latents,
                 negative_prompt = negative_prompt,
             ).images[0]
             if do_refine:
@@ -130,6 +132,6 @@ def generate_image(prompt,do_refine = False, do_upscale = False,negative_prompt 
                 ).images[0]
             if do_upscale:
                 image = upscale('R-ESRGAN General 4xV3', image, 1.5)
-        return image
+        return image, seed
     else:
         return None
