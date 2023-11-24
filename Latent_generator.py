@@ -4,7 +4,7 @@ def generate_latents(pipe, height=512, width=512, seed = 0):
     generator = torch.Generator()
     latents = None
     #Get a new random seed, store it and use it as the generator state
-    is seed == 0:
+    if seed == 0:
         seed = generator.seed()
     
     generator = generator.manual_seed(seed)
