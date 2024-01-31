@@ -192,7 +192,8 @@ def generate_image_handler(message):
         
         
 def generate_and_send_img(bot,message,prompt,user,bot_message):
-    image,seed = Stable_diffusion_XL.generate_image(prompt,*user.diffusion_options,generator)
+
+    image,seed = Stable_diffusion_XL.generate_image(prompt,*user.diffusion_options,generator = generator)
     if image is not None:
         image_bytes = BytesIO()
         image.save(image_bytes, format='JPEG')
@@ -266,18 +267,20 @@ def lang_process(message):
 
     line = message.text
     try:
-        users[message.from_user.id].lang = re.search('(?<=\/lang )[A-Za-z]{2}',line).group(0) 
-        lang[message.from_user.id] = re.search('(?<=\/lang )[A-Za-z]{2}',line).group(0)
+    	users[message.from_user.id].lang = re.search('(?<=\/lang )[A-Za-z]{2}',line).group(0) 
     except:
-        if not (message.from_user.id in lang):
-            lang[message.from_user.id] = 'en'
+    	pass
+        #lang[message.from_user.id] = re.search('(?<=\/lang )[A-Za-z]{2}',line).group(0)
+    #except:
+        #if not (message.from_user.id in lang):
+         #   lang[message.from_user.id] = 'en'
 #    with open('Cache/lang.pickle', 'wb') as handle:
 #        pickle.dump(lang,handle)
 
     with open('Cache/users.pickle', 'wb') as handle:
         pickle.dump(users,handle)
 
-    bot.send_message(message.from_user.id, f"Language set to: {lang[message.from_user.id]}")
+    bot.send_message(message.from_user.id, f"Language set to: {users[message.from_user.id].lang}")
 
 
 @bot.message_handler(commands = ['diffusion'])
@@ -389,10 +392,10 @@ def gettext(bot,message,history,lang,q):
 
         
 def run_bot():
-    try:
+    #try:
         bot.polling(none_stop=True,interval = 0)
-    except:
-        print('Error while polling')
+    #except:
+    #    print('Error while polling')
 while True:
     run_bot()
     time.sleep(5)
