@@ -113,27 +113,69 @@ def get_last_item(queue):
     return last_item
 
 
-def gpt_answer(prompt):
-    providers = [
-    g4f.Provider.GPTalk, # Worked with proxi
-    g4f.Provider.Liaobots,# Worked with proxi
-    g4f.Provider.Phind,# Worked with proxi
-    g4f.Provider.ChatBase,# Worked with proxi
-    g4f.Provider.ChatgptAi,# Worked with proxi
-    #g4f.Provider.Llama2,# Worked with proxi
-    ]
-    random.shuffle(providers)
-    for provider in providers:
-        try:
-            rp = RegisteredProviders()
-            rp.parse_providers()
-            proxi = rp.get_random_proxy()
-            completion = g4f.ChatCompletion.create(timeout=120,proxi=proxi,model = "gpt-3.5-turbo",messages = [{"role":"user","content":prompt}])
-            break
-        except:
-            continue
+def gpt_answer(prompt,model = 'mistral'):
+    if model == 'g4f':
 
+        providers = [
+        g4f.Provider.GPTalk, # Worked with proxi
+        g4f.Provider.Liaobots,# Worked with proxi
+        g4f.Provider.Phind,# Worked with proxi
+        g4f.Provider.ChatBase,# Worked with proxi
+        g4f.Provider.ChatgptAi,# Worked with proxi
+        #g4f.Provider.Llama2,# Worked with proxi
+        ]
+        random.shuffle(providers)
+        for provider in providers:
+            try:
+                rp = RegisteredProviders()
+                rp.parse_providers()
+                proxi = rp.get_random_proxy()
+                completion = g4f.ChatCompletion.create(timeout=120,proxi=proxi,model = "gpt-3.5-turbo",messages = [{"role":"user","content":prompt}])
+                break
+            except:
+                continue
+        
+    else:
+        from multiprocessing import Process, Manager
+        import os
+        import Supports.config
+        provider = f'Ollama {model}'
+        m = Manager()
+        q = m.Queue()
+        p = Process(target = ollama_responce, args = (prompt,model,q)).start()
+        completion = q.get()
+        #response = ollama_responce(prompt, model)
+        command = 'kill -SIGUSR1 $(pgrep -f ollama)'
+        os.system('echo %s|sudo -S %s' % (Supports.config.sudopass, command))
+        #os.popen("sudo -S %s"%(command), 'w').write(Supports.config.sudopass)
     return completion,provider
+
+
+
+def ollama_responce(prompt, model, q):
+
+
+    from langchain_community.llms import Ollama
+    import torch
+    try:
+        with torch.no_grad():
+                ollama = Ollama(base_url='http://localhost:11434',
+                model=model)
+    except: 
+        with torch.no_grad():
+                ollama = Ollama(base_url='http://localhost:11434',
+                model='mistral')
+
+    text_chunk = []
+
+    for chunk in ollama._stream(prompt):
+        text_chunk.append(chunk.text)
+
+    response = ''.join(text_chunk)
+    q.put(response)
+    return response
+
+
 
 @bot.message_handler(commands = ['help','start'])
 def list_commands(message):
@@ -348,7 +390,7 @@ def handler(message):
 
 
 def gettext(bot,message,history,lang,q):
-    try:
+#    try:
         print(f'Started processing {message.from_user.id}')
         bot_message = bot.send_message(message.from_user.id, "One minute...")
 
@@ -386,9 +428,9 @@ def gettext(bot,message,history,lang,q):
             
         print(f'Processed {message.from_user.id}, provider: {provider}')
 
-    except:
-        bot.send_message(message.from_user.id, "Что-то пошло не так :( Повторите запрос")
-    bot.delete_message(bot_message.chat.id,bot_message.message_id)        
+#    except:
+#        bot.send_message(message.from_user.id, "Что-то пошло не так :( Повторите запрос")
+#    bot.delete_message(bot_message.chat.id,bot_message.message_id)        
 
         
 def run_bot():
