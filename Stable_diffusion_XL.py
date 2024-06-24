@@ -14,10 +14,9 @@ def make_divisible_by_eight(number):
     return number
 
     
-def generate_image(prompt,do_refine = False, do_upscale = False,negative_prompt = '',guidance_scale = 8,height=768,width=1024,n_refiner_steps = 100, n_steps = 100,type = 'xl',lcm = True,VAE = 'original',seed = 0,scaduler = 'euler', generator= torch.Generator()):
+def generate_image(prompt,do_refine = False, do_upscale = False,negative_prompt = '',guidance_scale = 8,height=768,width=1024,n_refiner_steps = 100, n_steps = 100,type = 'xl',lcm = False,VAE = 'original',seed = 0,scaduler = 'euler', generator= torch.Generator()):
     width = make_divisible_by_eight(width)
     height = make_divisible_by_eight(height)
-    
     if torch.cuda.is_available():
         import Latent_generator
         from diffusers import StableDiffusionXLImg2ImgPipeline

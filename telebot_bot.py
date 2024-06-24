@@ -113,7 +113,8 @@ def get_last_item(queue):
     return last_item
 
 
-def gpt_answer(prompt,model = 'mistral'):
+#mistral
+def gpt_answer(prompt,model = 'openchat'):
     if model == 'g4f':
 
         providers = [
