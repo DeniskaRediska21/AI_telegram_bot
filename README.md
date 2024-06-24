@@ -3,7 +3,7 @@
 Chat GPT telegram bot powered by gpt4free and telebot
 
 Features:
-+ Chat GPT conversations powered by g4f library
++ Chat GPT conversations powered by g4f library or small local models through Ollama library
 + Image generations using various Stable Diffusion 1.5/XL models
 + Math module powered by WolframAlpha API
 
@@ -29,7 +29,7 @@ Downsides:
 
 ## Chatting with ChatGPT
 
-To get ChatGPT reply, write anything to bot, without any commands. **You can write in any language.**
+To get LLM reply, write anything to the bot, without any commands. **You can write in any language.**
 
 Chatting commands:
 + `/new` - to start a new dialogue
